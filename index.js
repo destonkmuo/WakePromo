@@ -1,55 +1,56 @@
-let eventProcessed;
-
 function OnNewVideo() {
-    var searchQuery = this.location.search
-    if (eventProcessed == searchQuery) { return } //Makes sure the URL is different from the last to prevent sending multiple request
-    
-    eventProcessed = searchQuery
+  var searchQuery = this.location.search
 
-    //Accesses the search query and looks for "?v=" and returns the video ID
-    var endOfQuery = searchQuery.indexOf("&") > 0 && searchQuery.indexOf("&") || searchQuery.length;
-    var videoId = decodeURIComponent(this.location.search.substring(searchQuery.indexOf("?v=") + 3, endOfQuery))
+  //Accesses the search query and returns the video ID after "?v="
+  var endOfQuery = searchQuery.indexOf("&") > 0 && searchQuery.indexOf("&") || searchQuery.length;
+  var videoID = decodeURIComponent(this.location.search.substring(searchQuery.indexOf("?v=") + 3, endOfQuery))
 
-    //Scrapes through the body of the HTML file and accesses the transcript API
-    var transcriptRegExp = new RegExp(/playerCaptionsTracklistRenderer.*?(youtube.com\/api\/timedtext.*?)"/);
-    var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(document.body.innerHTML)[1] + "&fmt=json3"}"`));
+  //Scrapes through the body of the HTML file and accesses the transcript API
+  var transcriptRegExp = new RegExp(/playerCaptionsTracklistRenderer.*?(youtube.com\/api\/timedtext.*?)"/);
 
-    if (transcriptURL == null || videoId == null) { return }
+  var getTranscriptURL = async _ => {
+    const response = await fetch(searchQuery);
+    if (!response.ok) throw new Error(response.statusText);
+    const data = await response.text();
+    return data;
+  }
 
+  var getJSON = async url => {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(response.statusText);
+    const data = await response.json();
+    return data;
+  }
+
+  getTranscriptURL().then(text => {
+    //Guard condition
+    if (transcriptRegExp.exec(text) == null || videoID == null || videoID == "") { return }
+
+    //Formats and finalizes the transcript URL
+    var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(text)[1] + "&fmt=json3"}"`));
     transcriptURL = transcriptURL.substring(12, transcriptURL.length);
 
-    var getJSON = async url => {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(response.statusText);
-        const data = await response.json();
-        return data;
-    }
+    //NOTE: Train the model for sentences like "link in the description"
+    getJSON(transcriptURL).then(transcriptJSON => {
+        var transcript = [];
+        var events = transcriptJSON.events;
+
+        for (speechSegment in events) {
+            var sentence = events[speechSegment].segs != null && events[speechSegment].segs || null;
+            //Filters out sentences that return as null or new line text
+            if (sentence == null || sentence[0].utf8 == "\n") { continue }
+            //Pushes the sentence and time stamp to the transcript array
+            transcript.push({ time: events[speechSegment].tStartMs / 1000, sentence: sentence.map(word => word.utf8).join("")});
+        }
+    })
 
     //Fetches the videos description using youtubes API
-
-    console.log(transcriptURL);
-
-    fetch(transcriptURL)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
+    getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`).then(videoJSON => {
+        const attributes = videoJSON.items[0].snippet;
+        var videoInfo = [{ description: attributes.description, title: attributes.title, channelTitle: attributes.channelTitle, tags: attributes.tags}]
     })
-    .then(jsonData => {
-      // Process the JSON data here
-      console.log(jsonData);
-    })
-    .catch(error => {
-      console.error('Error:', error.message);
-    });
-        
-
-    getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`).then(attributes => {
-        console.log(attributes.items[0].snippet.description)
-    })
+  })
 }
 
-
-//Whenever the user changes the video update the attributes of the page
-window.addEventListener('yt-update-title', OnNewVideo);
+//User changes video => update the attributes of the page
+window.addEventListener("yt-navigate-finish", OnNewVideo);
