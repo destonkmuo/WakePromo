@@ -8,7 +8,7 @@ function OnNewVideo() {
   //Scrapes through the body of the HTML file and accesses the transcript API
   var transcriptRegExp = new RegExp(/playerCaptionsTracklistRenderer.*?(youtube.com\/api\/timedtext.*?)"/);
 
-  var getTranscriptURL = async _ => {
+  var getInnerHTML = async _ => {
     const response = await fetch(searchQuery);
     if (!response.ok) throw new Error(response.statusText);
     const data = await response.text();
@@ -22,7 +22,7 @@ function OnNewVideo() {
     return data;
   }
 
-  getTranscriptURL().then(text => {
+  getInnerHTML().then(text => {
     //Guard condition
     if (transcriptRegExp.exec(text) == null || videoID == null || videoID == "") { return }
 
@@ -42,12 +42,14 @@ function OnNewVideo() {
             //Pushes the sentence and time stamp to the transcript array
             transcript.push({ time: events[speechSegment].tStartMs / 1000, sentence: sentence.map(word => word.utf8).join("")});
         }
+        console.log(transcript);
     })
 
     //Fetches the videos description using youtubes API
     getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`).then(videoJSON => {
         const attributes = videoJSON.items[0].snippet;
         var videoInfo = [{ description: attributes.description, title: attributes.title, channelTitle: attributes.channelTitle, tags: attributes.tags}]
+        console.log(videoInfo)
     })
   })
 }
