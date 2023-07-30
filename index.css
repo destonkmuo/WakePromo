@@ -2,11 +2,11 @@ body {
     width: 300px;
     height: 500px;
     background-color: #28353e;
-  }
+}
 
-  header {
-    margin-left: 25px;
-  }
+header {
+    margin-left: 10px;
+}
 
 #header1 {
     position: absolute;
@@ -80,21 +80,33 @@ body {
     width: 0;
     visibility: hidden;
   }
-  
-  #switch {
-    margin-top: 50px;
-  }
 
+.option1{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  top: 20px;
+  position: absolute;
+  align-items: center;
+  width: 100%;
+  padding: 40px 0px;
+}
+
+.option1 p {
+  color: white;
+  text-align: center;
+}
+
+@media (min-width: 10px) {
+  .option1 { grid-template-rows: repeat(1,1fr); }
+}
   label {
     cursor: pointer;
-    text-indent: -9999px;
     width: 50px;
     height: 25px;
     background: rgb(211, 90, 90);
     display: block;
     border-radius: 100px;
-    position: absolute;
-    right: 15px;
+    position: relative;
   }
   
   label:after {
@@ -119,6 +131,6 @@ body {
   }
   
   label:active:after {
-    width: 40px;
+    width: 33px;
   }
   
