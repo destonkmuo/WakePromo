@@ -11,9 +11,11 @@
 - Easy to use and lightweight Chrome extension.
 
 ## Installation
-1a. Download this extension through the Chrome Web Store.
+1. Download this extension through the Chrome Web Store.
 
-2b. Clone this repository to your local machine.
+### Or
+
+2. Clone this repository to your local machine.
     ```bash
    git clone https://github.com/yourusername/Wake-Promo-Extension.git
    ```
