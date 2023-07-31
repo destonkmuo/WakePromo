@@ -5,6 +5,7 @@ function toggleSetting(settingID) {
 }
 
 window.addEventListener('load', function() {
+    document.body.style.height = '500px';
     function loadSettings(setting) {
         var element = document.getElementById(setting);
 
