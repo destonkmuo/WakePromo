@@ -1,4 +1,4 @@
-const settingArray = ['suggestSkipTimeSwitch'];
+const settingArray = ['suggestSkipTimeSwitch']; // Add settings toggles here
 
 function toggleSetting(settingID) {
     localStorage.getItem(settingID) == "false" ? localStorage.setItem(settingID, true) : localStorage.setItem(settingID, false);
