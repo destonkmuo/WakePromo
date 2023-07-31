@@ -11,11 +11,12 @@
 - Easy to use and lightweight Chrome extension.
 
 ## Installation
+1a. Download this extension through the Chrome Web Store.
 
-1. Clone this repository to your local machine.
-
-   ```bash
+2b. Clone this repository to your local machine.
+    ```bash
    git clone https://github.com/yourusername/Wake-Promo-Extension.git
+   ```
 
 Open Google Chrome and navigate to chrome://extensions.
 
@@ -25,17 +26,20 @@ Click on "Load unpacked" and select the cloned folder (WakePromo) from your loca
 
 Voilà! The extension is now installed in your Chrome browser.
 
-How to Use
+## How to Use
 Once the extension is installed, just navigate to any YouTube video page, and WakePromo will automatically skip video promotions before the main content starts playing.
 
-# Screenshots
+## Screenshots
 
 Contribution
-We welcome contributions from the community! If you encounter any issues or have suggestions for improvements, feel free to create a pull request or open an issue.
+We welcome contributions from the community! If you encounter any issues or have suggestions for improvements, feel free to open an issue.
+
+## License
+This project is licensed under the **MIT License**.
 
 Happy skipping! 🚀🎉
 
-For more information or to report any issues, please visit our website or email us at wakepromo.extension@gmail.com
+For more information or to report any issues, please visit our website **https://www.wakepromo.com** or email us at **wakepromo.extension@gmail.com**.
 
 
 
