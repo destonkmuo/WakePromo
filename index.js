@@ -1,4 +1,16 @@
+/* NOTES
+  // Grab the area-valuemax value from the div, make a function that follows the bar
+  //transform it using the ration of (time of promo)/(video duration) to (pixel amount)/(width of progress bar)
+  // The indicators shouldn't be hoverable or clickable and they should be semi transparent
+  // full screen implementation
+  //mainVideo.currentTime = 60;
+
+*/
+
 function OnNewVideo() {
+  var mainVideo = document.getElementsByClassName('video-stream html5-main-video')[0];
+  var progressBar = document.getElementsByClassName('ytp-progress-bar')[0];
+
   var searchQuery = this.location.search
 
   //Accesses the search query and returns the video ID after "?v="
@@ -40,7 +52,7 @@ function OnNewVideo() {
             //Filters out sentences that return as null or new line text
             if (sentence == null || sentence[0].utf8 == "\n") { continue }
             //Pushes the sentence and time stamp to the transcript array
-            transcript.push({ time: events[speechSegment].tStartMs / 1000, sentence: sentence.map(word => word.utf8).join("")});
+            transcript.push({ time: events[speechSegment].tStartMs / 1000, sentence: (sentence.map(word => word.utf8).join("")).replace('\n',"")});
         }
         console.log(transcript);
     })
