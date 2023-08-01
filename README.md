@@ -13,7 +13,7 @@
 ## Installation
 1. Download this extension through the Chrome Web Store.
 
-### Or
+**or**
 
 2. Clone this repository to your local machine.
     ```bash
