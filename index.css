@@ -93,7 +93,7 @@ input[type=checkbox]{
   width: 0;
   visibility: hidden;
 }
-.option1{
+.userSettings{
   display: grid;
   grid-template-columns: auto auto auto;
   top: 20px;
@@ -102,12 +102,12 @@ input[type=checkbox]{
   width: 100%;
   padding: 40px 0px;
 }
-.option1 p {
+.userSettings p {
   color: white;
   text-align: center;
 }
 @media (min-width: 10px) {
-  .option1 {
+  .userSettings {
       grid-template-rows: repeat(1,1fr);
  }
 }

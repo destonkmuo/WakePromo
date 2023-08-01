@@ -2,11 +2,11 @@
 
 ![WakePromo Logo](path/to/your/logo.png)
 
-**WakePromo** is a Chrome extension developed by Deston Muo and Alan Roybal that helps you skip YouTube video promotions effortlessly.
+**WakePromo** is a Chrome extension developed by Deston Muo and Alan Roybal that helps you skip YouTube video advertisements & promotions effortlessly.
 
 ## Features
 
-- Skip annoying YouTube video promotions automatically.
+- Skip annoying YouTube video advertisements & promotions automatically.
 - Enjoy uninterrupted video playback on YouTube.
 - Easy to use and lightweight Chrome extension.
 
@@ -17,19 +17,19 @@
 
 2. Clone this repository to your local machine.
     ```bash
-   git clone https://github.com/yourusername/Wake-Promo-Extension.git
+   git clone https://github.com/destonkmuo/Wake-Promo-Extension.git
    ```
 
 Open Google Chrome and navigate to chrome://extensions.
 
 Enable the "Developer mode" in the top right corner.
 
-Click on "Load unpacked" and select the cloned folder (WakePromo) from your local machine.
+Click on "Load unpacked" and select the cloned folder /WakePromo/ from your local machine.
 
 Voilà! The extension is now installed in your Chrome browser.
 
 ## How to Use
-Once the extension is installed, just navigate to any YouTube video page, and WakePromo will automatically skip video promotions before the main content starts playing.
+Once the extension is installed, navigate to any YouTube video page, and WakePromo will automatically skip video advertisements & promotions before, during, and after the content of the video.
 
 ## Screenshots
 
