@@ -1,4 +1,4 @@
-const settingArray = ['suggestSkipTimeSwitch']; // Add settings toggles here
+const settingArray = ['suggestSkipTimeSwitch', 'blockAdvertisements']; // Add settings toggles here
 
 function toggleSetting(settingID) {
     localStorage.getItem(settingID) == "false" ? localStorage.setItem(settingID, true) : localStorage.setItem(settingID, false);
@@ -9,7 +9,7 @@ window.addEventListener('load', function() {
     function loadSettings(setting) {
         var element = document.getElementById(setting);
 
-        if (localStorage.getItem(setting) == null) { localStorage.setItem(setting, false) }
+        if (localStorage.getItem(setting) == null) { localStorage.setItem(setting, true) }
 
         localStorage.getItem(setting) == "false" ? element.checked = false : element.checked = true;
 
