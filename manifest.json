@@ -9,8 +9,9 @@
            "https://www.YouTube.com/*"
         ],
         "js":[
-           "javascript/promoBlock.js",
-           "javascript/adblock.js"
+         "javascript/time-skip.js", 
+         "javascript/promo-block.js", 
+         "javascript/advertisement-block.js"
         ]
      }
   ],
