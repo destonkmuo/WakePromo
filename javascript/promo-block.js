@@ -31,6 +31,8 @@ function OnNewVideo() {
     var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(text)[1] + "&fmt=json3"}"`));
     transcriptURL = transcriptURL.substring(12, transcriptURL.length);
 
+    timeSkipIndicator(10, 100)
+
     //NOTE: Train the model for sentences like "link in the description"
     getJSON(transcriptURL).then(transcriptJSON => {
         var transcript = [];
@@ -49,20 +51,22 @@ function OnNewVideo() {
     //Fetches the videos description using youtubes API
     getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`).then(videoJSON => {
         const attributes = videoJSON.items[0].snippet;
-        var videoInfo = [{ description: attributes.description, title: attributes.title, channelTitle: attributes.channelTitle, tags: attributes.tags}]
+        var videoInfo = [{ description: attributes.description, title: attributes.title, channelTitle: attributes.channelTitle, tags: attributes.tags, category: attributes.categoryId}]
         console.log(videoInfo)
     })
 
     /* Once all data is collected and is useable:
     
-    setInterval(function() {
+    chrome.storage.sync.get(['skipAdvertisements'], function(result) {
+        setInterval(function() {
         var video = document.getElementsByClassName('video-stream html5-main-video')[0];
-        if (video.currentTime == promotionStartTime - 5 && localStorage.getItem("skipPromotions") == "true"){
+        if (video.currentTime == promotionStartTime - 2 && result['skipAdvertisements] == "true"){
           videoSkipTo(promotionEndTime);
-        } else if (video.currentTime == promotionStartTime - 5 && localStorage.getItem("skipPromotions") == "false") {
+        } else if (video.currentTime == promotionStartTime - 5 && result['skipAdvertisements] == "false") {
           timeSkipSuggestion(promotionEndTime);
         }
     }, 500)
+    }
 
 
     

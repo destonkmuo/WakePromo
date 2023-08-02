@@ -1,19 +1,28 @@
 const settingArray = ['showPromotionDuration', 'skipAdvertisements', 'skipPromotions']; // Add settings toggles here
 
 function toggleSetting(settingID) {
-    localStorage.getItem(settingID) == "false" ? localStorage.setItem(settingID, true) : localStorage.setItem(settingID, false);
+    chrome.storage.sync.get([`${settingID}`], function(result) {
+        var value = result[settingID];
+        value == "false" ? chrome.storage.sync.set({[`${settingID}`]: "true"}) : chrome.storage.sync.set({[`${settingID}`]: "false"});   
+    });
 }
 
 window.addEventListener('load', function() {
     document.body.style.height = '500px';
-    function loadSettings(setting) {
-        var element = document.getElementById(setting);
+    function loadSettings(settingID)  {
+        var element = document.getElementById(settingID);
 
-        if (localStorage.getItem(setting) == null) { localStorage.setItem(setting, true) }
+        chrome.storage.sync.get([`${settingID}`], function(result) {
+            var value = result[settingID];
 
-        localStorage.getItem(setting) == "false" ? element.checked = false : element.checked = true;
+            if (value == undefined) { 
+                value = "true"; 
+                chrome.storage.sync.set({[`${settingID}`]: 'true'});
+            }
 
-        element.addEventListener("click", function() { toggleSetting(setting) });
+            value == "false" ? element.checked = false : element.checked = true;
+            });
+        element.addEventListener("click", function() { toggleSetting(settingID) }); 
     }
-    settingArray.forEach(setting => loadSettings(setting)); 
+    settingArray.forEach(settingID => loadSettings(settingID));
 });

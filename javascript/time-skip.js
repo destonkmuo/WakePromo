@@ -8,20 +8,22 @@
 var createdElements = []
 
 function timeSkipIndicator(promotionStartTime, promotionDuration) {
-    if (localStorage.getItem("showPromotionDuration") == "false ") { return }
-    var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
-    var videoDuration = document.getElementsByClassName('video-stream html5-main-video')[0].duration;
-    var div = document.createElement("div");
+    chrome.storage.sync.get(['showPromotionDuration'], function(result) {
+        if (result['showPromotionDuration'] == "false") { return }
+        var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
+        var videoDuration = document.getElementsByClassName('video-stream html5-main-video')[0].duration;
+        var div = document.createElement("div");
+        
+        div.style.width = 100 * promotionDuration/videoDuration+"%"; // proportion of the diff to the duration of the vid
+        div.style.height = "101%";
+        div.style.background = "black";
     
-    div.style.width = 100 * promotionDuration/videoDuration+"%"; // proportion of the diff to the duration of the vid
-    div.style.height = "101%";
-    div.style.background = "black";
-
-    div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
-    div.style.pointerEvents = "none";
-
-    progressBar.appendChild(div);
-    createdElements.push(div);
+        div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
+        div.style.pointerEvents = "none";
+    
+        progressBar.appendChild(div);
+        createdElements.push(div);   
+    });
 }
 
 function videoSkipTo(promotionEndTime) {

@@ -1,10 +1,15 @@
 function blockAdsOnNewVideo() {
-    setInterval(function() {
+      // Move the setInterval inside the callback to ensure the result is available
+      setInterval(function() {
         var skipButton = document.getElementsByClassName("ytp-ad-skip-button");
-        if(skipButton != undefined && skipButton.length > 0 && localStorage.getItem("blockAdvertisements") == "true") {
-            skipButton[0].click();
+        if (skipButton != undefined && skipButton.length > 0) {
+          skipButton[0].click();
         }
-    }, 100)
-}
-
-window.addEventListener("yt-navigate-finish", blockAdsOnNewVideo);
+      }, 100);
+  }
+  
+  chrome.storage.sync.get(['skipAdvertisements'], function(result) {
+    if (result['skipAdvertisements'] === "true") {
+        window.addEventListener("yt-navigate-finish", blockAdsOnNewVideo);
+    }
+  });
