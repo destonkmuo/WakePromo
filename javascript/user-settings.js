@@ -1,4 +1,4 @@
-const settingArray = ['suggestSkipTimeSwitch', 'blockAdvertisements']; // Add settings toggles here
+const settingArray = ['showPromotionDuration', 'skipAdvertisements', 'skipPromotions']; // Add settings toggles here
 
 function toggleSetting(settingID) {
     localStorage.getItem(settingID) == "false" ? localStorage.setItem(settingID, true) : localStorage.setItem(settingID, false);

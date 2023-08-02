@@ -1,16 +1,5 @@
-/* NOTES
-  // Grab the area-valuemax value from the div, make a function that follows the bar
-  //transform it using the ration of (time of promo)/(video duration) to (pixel amount)/(width of progress bar)
-  // The indicators shouldn't be hoverable or clickable and they should be semi transparent
-  // full screen implementation
-  //mainVideo.currentTime = 60;
-
-*/
-
 function OnNewVideo() {
-  var mainVideo = document.getElementsByClassName('video-stream html5-main-video')[0];
-  var progressBar = document.getElementsByClassName('ytp-progress-bar')[0];
-
+  //ADD: Delete all created elements from an array
   var searchQuery = this.location.search
 
   //Accesses the search query and returns the video ID after "?v="
@@ -63,6 +52,21 @@ function OnNewVideo() {
         var videoInfo = [{ description: attributes.description, title: attributes.title, channelTitle: attributes.channelTitle, tags: attributes.tags}]
         console.log(videoInfo)
     })
+
+    /* Once all data is collected and is useable:
+    
+    setInterval(function() {
+        var video = document.getElementsByClassName('video-stream html5-main-video')[0];
+        if (video.currentTime == promotionStartTime - 5 && localStorage.getItem("skipPromotions") == "true"){
+          videoSkipTo(promotionEndTime);
+        } else if (video.currentTime == promotionStartTime - 5 && localStorage.getItem("skipPromotions") == "false") {
+          timeSkipSuggestion(promotionEndTime);
+        }
+    }, 500)
+
+
+    
+     */
   })
 }
 
