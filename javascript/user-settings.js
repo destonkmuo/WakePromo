@@ -26,3 +26,7 @@ window.addEventListener('load', function() {
     }
     settingArray.forEach(settingID => loadSettings(settingID));
 });
+
+window.addEventListener('close', function() {
+    this.location.reload();
+})
