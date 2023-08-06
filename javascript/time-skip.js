@@ -9,10 +9,13 @@ var createdElements = [];
 
 function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration) {
     // Check if the extension context is still valid before proceeding
+    if (!chrome || !chrome.storage || !chrome.storage.sync || !chrome.storage.sync.get) {
+        console.error("Extension context is not valid.");
+        return;
+    }
+
     chrome.storage.sync.get(['showPromotionDuration'], function(result) {
         if (result && result['showPromotionDuration'] == "false") { return; }
-
-        console.log(promotionDuration);
 
         var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
 
@@ -35,7 +38,6 @@ function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration)
     
         progressBar.appendChild(div);
         createdElements.push(div);   
-
     });
 }
 

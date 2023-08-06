@@ -62,7 +62,7 @@ function OnNewVideo() {
         channelTitle: snippet.channelTitle, 
         tags: snippet.tags, 
         category: snippet.categoryId, 
-        duration: convertISO8601DurationToSeconds(contentDetails.duration)
+        duration: convertISO8601DurationToSeconds(contentDetails.duration) - 1
       }
 
       timeSkipIndicator(10, 60, videoInfo.duration);
