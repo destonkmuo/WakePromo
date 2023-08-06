@@ -1,5 +1,6 @@
 function OnNewVideo() {
   //ADD: Delete all created elements from an array
+
   var searchQuery = this.location.search
 
   //Accesses the search query and returns the video ID after "?v="
@@ -31,7 +32,9 @@ function OnNewVideo() {
     var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(text)[1] + "&fmt=json3"}"`));
     transcriptURL = transcriptURL.substring(12, transcriptURL.length);
 
-    timeSkipIndicator(10, 100)
+    //NOTE: Before using any time skip fncs make sure that the video is present if not wait.
+
+    timeSkipIndicator(10, 60);
 
     //NOTE: Train the model for sentences like "link in the description"
     getJSON(transcriptURL).then(transcriptJSON => {

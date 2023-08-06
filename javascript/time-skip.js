@@ -9,34 +9,32 @@ var createdElements = [];
 
 function timeSkipIndicator(promotionStartTime, promotionDuration) {
     // Check if the extension context is still valid before proceeding
-    if (!chrome || !chrome.storage || !chrome.storage.sync || !chrome.storage.sync.get) {
-        console.error("Extension context is not valid.");
-        return;
-    }
-
     chrome.storage.sync.get(['showPromotionDuration'], function(result) {
         if (result && result['showPromotionDuration'] == "false") { return; }
 
-        var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
-        var videoDuration = document.getElementsByClassName('video-stream html5-main-video')[0].duration;
-        var div = document.createElement("div");
-        
-        div.style.width = 100 * promotionDuration/videoDuration+"%"; // proportion of the diff to the duration of the vid
-        div.style.height = "101%";
-        div.style.background = "yellow";
-        div.style.borderRadius = "1px";
-        div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
-        div.style.transition = 'all 200ms ease-in-out';
-        div.style.opacity = "50%";
-        progressBar.addEventListener("mouseenter", function() { 
-            div.style.opacity = "90%";
-        })
-        progressBar.addEventListener("mouseleave", function() { 
-            div.style.opacity = "50%";
-        })
+        var video = document.getElementsByClassName('video-stream html5-main-video')[0];
+        video.oncanplay = function() {
+            var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
+            var videoDuration = video.duration;
+            var div = document.createElement("div");
     
-        progressBar.appendChild(div);
-        createdElements.push(div);   
+            div.style.width = 100 * promotionDuration/videoDuration+"%"; // proportion of the diff to the duration of the vid
+            div.style.height = "101%";
+            div.style.background = "black";
+            div.style.borderRadius = "1px";
+            div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
+            div.style.transition = 'all 200ms ease-in-out';
+            div.style.opacity = "50%";
+            progressBar.addEventListener("mouseenter", function() { 
+                div.style.opacity = "90%";
+            })
+            progressBar.addEventListener("mouseleave", function() { 
+                div.style.opacity = "50%";
+            })
+        
+            progressBar.appendChild(div);
+            createdElements.push(div);   
+        }
     });
 }
 
@@ -52,4 +50,3 @@ function timeSkipSuggestion(promotionEndTime) {
 window.addEventListener("yt-navigate-start", function() {
     createdElements.forEach(element => element.remove());
 });
-
