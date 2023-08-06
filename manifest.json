@@ -10,6 +10,7 @@
         ],
         "js":[
          "javascript/time-skip.js", 
+         "javascript/conv-iso8601.js",
          "javascript/promo-block.js", 
          "javascript/advertisement-block.js"
         ]

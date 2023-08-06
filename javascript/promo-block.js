@@ -29,12 +29,11 @@ function OnNewVideo() {
     if (transcriptRegExp.exec(text) == null || videoID == null || videoID == "") { return }
 
     //Formats and finalizes the transcript URL
+
     var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(text)[1] + "&fmt=json3"}"`));
     transcriptURL = transcriptURL.substring(12, transcriptURL.length);
 
     //NOTE: Before using any time skip fncs make sure that the video is present if not wait.
-
-    timeSkipIndicator(10, 60);
 
     //NOTE: Train the model for sentences like "link in the description"
     getJSON(transcriptURL).then(transcriptJSON => {
@@ -52,10 +51,21 @@ function OnNewVideo() {
     })
 
     //Fetches the videos description using youtubes API
-    getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`).then(videoJSON => {
-        const attributes = videoJSON.items[0].snippet;
-        var videoInfo = [{ description: attributes.description, title: attributes.title, channelTitle: attributes.channelTitle, tags: attributes.tags, category: attributes.categoryId}]
-        console.log(videoInfo)
+    getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`).then(videoJSON => {
+      const items = videoJSON.items[0];
+      const snippet = items.snippet;
+      const contentDetails = items.contentDetails;
+      
+      var videoInfo = { 
+        description: snippet.description, 
+        title: snippet.title, 
+        channelTitle: snippet.channelTitle, 
+        tags: snippet.tags, 
+        category: snippet.categoryId, 
+        duration: convertISO8601DurationToSeconds(contentDetails.duration)
+      }
+
+      timeSkipIndicator(10, 60, videoInfo.duration);
     })
 
     /* Once all data is collected and is useable:
