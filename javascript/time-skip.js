@@ -13,7 +13,8 @@ function timeSkipIndicator(promotionStartTime, promotionDuration) {
         if (result && result['showPromotionDuration'] == "false") { return; }
 
         var video = document.getElementsByClassName('video-stream html5-main-video')[0];
-        video.oncanplay = function() {
+
+        function addTimeSkip() {
             var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
             var videoDuration = video.duration;
             var div = document.createElement("div");
@@ -34,6 +35,12 @@ function timeSkipIndicator(promotionStartTime, promotionDuration) {
         
             progressBar.appendChild(div);
             createdElements.push(div);   
+        }
+
+        if (!isNaN(video.duration)) {
+            addTimeSkip();
+        } else {
+            video.oncanplay = addTimeSkip();
         }
     });
 }
