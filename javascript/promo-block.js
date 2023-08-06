@@ -64,7 +64,7 @@ function OnNewVideo() {
         category: snippet.categoryId, 
         duration: convertISO8601DurationToSeconds(contentDetails.duration) - 1
       }
-
+      potentialSponsors(videoInfo.description);
       timeSkipIndicator(10, 60, videoInfo.duration);
     })
 
