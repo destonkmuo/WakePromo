@@ -5,6 +5,7 @@
   //mainVideo.currentTime = 60;
 */
 
+
 var createdElements = [];
 
 function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration) {
