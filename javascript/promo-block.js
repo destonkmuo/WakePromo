@@ -1,4 +1,4 @@
-function OnNewVideo() {
+function GetVideoInformation() {
   //ADD: Delete all created elements from an array
 
   var searchQuery = this.location.search
@@ -71,7 +71,21 @@ function OnNewVideo() {
               category: snippet.categoryId,
               duration: convertISO8601DurationToSeconds(contentDetails.duration) - 1
           }
-          potentialSponsors(videoInfo);
+          var newVideo = new YoutubeVideo(videoInfo);
+
+          async function applyAttributes() {
+            const companies = await (await newVideo.getCompanies()).json()
+            const potentialSponsors1 = await newVideo.spellCheck();
+            const potentialSponsors2 = newVideo.capitalCheck();
+            const potentialSponsors3 = newVideo.extractedLinksCheck();
+            const potentialSponsors4 = newVideo.firstBreadth();
+            const potentialSponsors5 = newVideo.orgRecog();
+            const potentialSponsors6 = newVideo.nounsRecog();
+            console.log(companies);
+            console.log(potentialSponsors1,potentialSponsors2,potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
+
+          }
+          applyAttributes();
           timeSkipIndicator(10, 60, videoInfo.duration);
       })
 
@@ -95,4 +109,4 @@ function OnNewVideo() {
 }
 
 //User changes video => update the attributes of the page
-window.addEventListener("yt-navigate-finish", OnNewVideo);
+window.addEventListener("yt-navigate-finish", GetVideoInformation);
