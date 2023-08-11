@@ -1,51 +1,47 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>WakePromo AI</title>
-  <link rel="stylesheet" href="index.css"> 
-  <meta charset="UTF-8">
-  
-</head>
-<body>
-  <main>
-    <div class="divider"></div>
-    <header>
-      <h1 id="header1">WakePromo</h1>
-      <h1 id="inner-header1">in</h1>
-      <img id="google-icon" src="static/GoogleIcon.png"></h1>
-    </header>
-  </main> 
-
-  <div class="lines">
-    <div class="line"></div>
-    <div class="line"></div>
-    <div class="line"></div>
-  </div>
-
-  <h1 id="settings-h1">Settings</h1>
-  <div class="userSettings">
-    <p>Show "Skip Stamps"</p>
-    <input type="checkbox" id="showPromotionDuration"/>
-    <label for="showPromotionDuration"></label>
-
-    <p>Automatically Skip Promotions</p>
-    <input type="checkbox" id="skipPromotions"/>
-    <label for="skipPromotions"></label>
-
-    <p>Automatically Skip Advertisements</p>
-    <input type="checkbox" id="skipAdvertisements"/>
-    <label for="skipAdvertisements"></label>
-
-  </div>
-  
-  <footer>
-    <img src="static/WebsiteIcon.png" id="website-icon">
-    <img src="static/PrivacyIcon.png" id="privacy-icon">
-    <ul class="footer-list">
-      <li class="footer-list-item"><a href="https://www.wakepromo.com" target="_blank">Visit Our Website</a></li>
-      <li class="footer-list-item special-hover"><a href="https://www.wakepromo.com/privacy-policy" target="_blank">Privacy Policy</a></li>
-    </ul>
-  </footer>
-</body>
-<script defer src="/javascript/user-settings.js" type="module"></script>
+   <head>
+      <title>WakePromo AI</title>
+      <link rel="stylesheet" href="index.css">
+      <meta charset="UTF-8">
+   </head>
+   <body>
+      <main>
+         <div class="divider"></div>
+         <header>
+            <h1 id="header1">WakePromo</h1>
+            <h1 id="inner-header1">in</h1>
+            <img id="google-icon" src="static/GoogleIcon.png"></h1>
+         </header>
+      </main>
+      <div class="lines">
+         <div class="line"></div>
+         <div class="line"></div>
+         <div class="line"></div>
+      </div>
+      <h1 id="settings-h1">Settings</h1>
+      <div class="userSettings">
+         <p>Show "Skip Stamps"</p>
+         <input type="checkbox" id="showPromotionDuration"/>
+         <label for="showPromotionDuration"></label>
+         <p>Automatically Skip Promotions</p>
+         <input type="checkbox" id="skipPromotions"/>
+         <label for="skipPromotions"></label>
+         <p>Automatically Skip Advertisements</p>
+         <input type="checkbox" id="skipAdvertisements"/>
+         <label for="skipAdvertisements"></label>
+      </div>
+      <canvas id="chart" style="width:100%;max-width:700px"></canvas>
+      <footer>
+         <img src="static/WebsiteIcon.png" id="website-icon">
+         <img src="static/PrivacyIcon.png" id="privacy-icon">
+         <ul class="footer-list">
+            <li class="footer-list-item"><a href="https://www.wakepromo.com" target="_blank">Visit Our Website</a></li>
+            <li class="footer-list-item special-hover"><a href="https://www.wakepromo.com/privacy-policy" target="_blank">Privacy Policy</a></li>
+         </ul>
+      </footer>
+   </body>
+   <script src="/javascript/chart-lib.js"></script>
+   <script defer src="/javascript/user-settings.js" type="module"></script>
+   <script src = "/javascript/video-data.js"></script>
 </html>

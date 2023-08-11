@@ -8,7 +8,7 @@ function toggleSetting(settingID) {
 }
 
 window.addEventListener('load', function() {
-    document.body.style.height = '500px';
+    document.body.style.height = '320px';
     function loadSettings(settingID)  {
         var element = document.getElementById(settingID);
 
@@ -26,7 +26,3 @@ window.addEventListener('load', function() {
     }
     settingArray.forEach(settingID => loadSettings(settingID));
 });
-
-window.addEventListener('close', function() {
-    this.location.reload();
-})

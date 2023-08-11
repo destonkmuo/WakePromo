@@ -1,3 +1,6 @@
+// Send a message to the extension's background script
+var isPopupOpen = false;
+
 function GetVideoInformation() {
   //ADD: Delete all created elements from an array
 
@@ -31,11 +34,8 @@ function GetVideoInformation() {
       }
 
       //Formats and finalizes the transcript URL
-
       var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(text)[1] + "&fmt=json3"}"`));
       transcriptURL = transcriptURL.substring(12, transcriptURL.length);
-
-      //NOTE: Before using any time skip fncs make sure that the video is present if not wait.
 
       //NOTE: Train the model for sentences like "link in the description"
       getJSON(transcriptURL).then(transcriptJSON => {
@@ -73,19 +73,30 @@ function GetVideoInformation() {
           }
           var newVideo = new YoutubeVideo(videoInfo);
 
-          async function applyAttributes() {
+          (async () => {
             const companies = await (await newVideo.getCompanies()).json()
+
             const potentialSponsors1 = await newVideo.spellCheck();
             const potentialSponsors2 = newVideo.capitalCheck();
             const potentialSponsors3 = newVideo.extractedLinksCheck();
             const potentialSponsors4 = newVideo.firstBreadth();
             const potentialSponsors5 = newVideo.orgRecog();
             const potentialSponsors6 = newVideo.nounsRecog();
+
+            newVideo.cleanSponsorFrequency();
+
+            console.log(newVideo.sponsors);
+
+            const SendDataToPopUp = setInterval(function() {
+                if (isPopupOpen) {
+                  chrome.runtime.sendMessage({ type:'video', data: newVideo.sponsors, name: videoInfo.title});
+                  clearInterval(SendDataToPopUp);
+                }
+            }, 500)
+            
             console.log(companies);
             console.log(potentialSponsors1,potentialSponsors2,potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
-
-          }
-          applyAttributes();
+          })();
           timeSkipIndicator(10, 60, videoInfo.duration);
       })
 
@@ -101,12 +112,20 @@ function GetVideoInformation() {
           }
       }, 500)
       }
-
-
-      
        */
   })
 }
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.isPopupOpen == true) {
+    isPopupOpen = true;
+    GetVideoInformation()
+    // You can process the message or send a response back if needed
+    chrome.runtime.sendMessage({ type:'video', data: 'data'});
+  } else if (message.isPopupOpen == false) {
+    isPopupOpen = false;
+  }
+});
 
 //User changes video => update the attributes of the page
 window.addEventListener("yt-navigate-finish", GetVideoInformation);

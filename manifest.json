@@ -27,5 +27,9 @@
       "contextMenus",
       "storage",
       "tabs"
-   ]
+   ],
+   "web_accessible_resources": [{
+      "matches": ["<all_urls>"],
+      "resources": ["https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"]
+    }]
 }

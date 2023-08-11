@@ -230,3 +230,9 @@ label:active:after {
     top: 110%;
   }
 }
+
+#chart {
+  position: absolute;
+  bottom: 8%;
+  left: 3px;
+}

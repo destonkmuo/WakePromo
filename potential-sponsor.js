@@ -20,24 +20,52 @@ class YoutubeVideo {
 
 	constructor(videoInfo) {
 		this.description = videoInfo.description;
-		this.title = videoInfo.title;
-		this.channelTitle = videoInfo.channelTitle;
-		this.tags = videoInfo.tags;
+		this.title = videoInfo.title.split(/\s+/);
+		this.channelTitle = videoInfo.channelTitle.split(/\s+/);
+		this.tags = videoInfo.tags != undefined ? videoInfo.tags : [];
 		this.category = videoInfo.category;
 		this.duration = videoInfo.duration;
-		this.commonSocials = ['twitter', 'tiktok', 'facebook', 'instagram', 'youtube', 'itunes', 'snapchat', 'reddit', 'discord', 'twitch', 'geni', 'lmg', 'youtu', 'spoti', 'soundcloud'];
+    this.sponsors = {};
 	}
 
 	//NOTE: Find context and their synonyms and don't apply
 
 	//remove common socials
-	removeSocials(set) {
+	removeRedundant(set) {
 		set.forEach(element => {
-			if (this.commonSocials.includes(element))
+			if (commonRedundancies.includes(element))
 				set.delete(element);
 		})
 		return set;
 	}
+
+  cleanSponsorFrequency() {
+    const context = new Set();
+    this.title.forEach(word => {if (word.length > 3) context.add(word.toLowerCase())});
+    this.channelTitle.forEach(word => {if (word.length > 3) context.add(word.toLowerCase())});
+    this.tags.forEach(word => {if (word.length > 3) context.add(word.toLowerCase())});
+
+    context.forEach(context => {
+      for (const sponsor in this.sponsors) {
+        if (sponsor.includes(context)) {
+          delete this.sponsors[sponsor];
+        }
+      }
+    })
+    for (const sponsor in this.sponsors) {
+      if (this.sponsors[sponsor] < 4)
+        delete this.sponsors[sponsor];
+    }
+  }
+
+  incSponsorFrequency(set, weight) {
+    set = this.removeRedundant(set);
+    set.forEach(element => {
+      if (this.sponsors[element] == null) 
+        this.sponsors[element] = 0;
+      this.sponsors[element] += weight;
+    })
+  }
 
 	//STEP 1: CHOOSE POTENTIAL SPONSOR WORDS
 	async spellCheck() {
@@ -55,8 +83,9 @@ class YoutubeVideo {
 			if (trimmedWord.length > 4 && !isWordValid(trimmedWord)) {
 				result.add(trimmedWord);
 			}
-		});
-		return this.removeSocials(result);
+		})
+    this.incSponsorFrequency(result,1);
+		return this.removeRedundant(result);
 	}
 
 	capitalCheck() {
@@ -64,19 +93,21 @@ class YoutubeVideo {
 		const result = new Set();
 
 		description.forEach(word => {
-			const descRegExp = new RegExp(/\d([A-Z])\w+/g);
+			const descRegExp = new RegExp(/\d+|([A-Z])\w+/g);
 			const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-			if (trimmedWord.length > 4) {
+      if (trimmedWord.length > 4) {
 				result.add(trimmedWord);
 			}
-		});
-		return this.removeSocials(result)
+		})
+    this.incSponsorFrequency(result,1);
+		return this.removeRedundant(result)
 	}
 
 	extractedLinksCheck() {
 		const description = this.description.split(/\s+/);
 		const result = new Set();
 
+    //Get the end of links as well
 		function removeNonDomainName(word) {
 			if (word.includes('//')) {
 				word = word.substring(word.indexOf('//') + 2, word.length)
@@ -98,8 +129,8 @@ class YoutubeVideo {
 			if (trimmedWord.length > 4)
 				result.add(trimmedWord);
 		})
-
-		return this.removeSocials(result);
+    this.incSponsorFrequency(result,1);
+		return this.removeRedundant(result);
 	}
 
 	//Top of the Description priority
@@ -107,7 +138,7 @@ class YoutubeVideo {
 		const sentences = this.description.split('\n');
 		const sentenceResult = [];
 		//Get length and retrieve the first 1/4;
-		for (var sentenceIndex = 0; sentenceIndex < Math.ceil(sentences.length / 4); sentenceIndex++) {
+		for (var sentenceIndex = 0; sentenceIndex < 4; sentenceIndex++) {
 			sentenceResult.push(sentences[sentenceIndex]);
 		}
 
@@ -121,7 +152,8 @@ class YoutubeVideo {
 					result.add(trimmedWord);
 			})
 		})
-		return this.removeSocials(result);
+    this.incSponsorFrequency(result,1);
+		return this.removeRedundant(result);
 	}
 
 	orgRecog() {
@@ -139,7 +171,8 @@ class YoutubeVideo {
 					result.add(trimmedWord);
 			})
 		})
-		return this.removeSocials(result);
+    this.incSponsorFrequency(result,1);
+		return this.removeRedundant(result);
 	}
 
 	nounsRecog() {
@@ -157,7 +190,8 @@ class YoutubeVideo {
 					result.add(trimmedWord);
 			})
 		})
-		return this.removeSocials(result);
+    this.incSponsorFrequency(result,1);
+		return this.removeRedundant(result);
 	}
 
 	//Filters

@@ -4,9 +4,11 @@
   // full screen implementation
   //mainVideo.currentTime = 60;
 */
+
 var createdElements = [];
 
 function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration) {
+    createdElements.forEach(element => element.remove());
     // Check if the extension context is still valid before proceeding
     if (!chrome || !chrome.storage || !chrome.storage.sync || !chrome.storage.sync.get) {
         console.error("Extension context is not valid.");
@@ -41,14 +43,23 @@ function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration)
 }
 
 function videoSkipTo(promotionEndTime) {
+    createdElements.forEach(element => element.remove());
     var video = document.getElementsByClassName('video-stream html5-main-video')[0];
     video.currentTime = promotionEndTime;
 }
 
 function timeSkipSuggestion(promotionEndTime) {
+    createdElements.forEach(element => element.remove());
     videoSkipTo(promotionEndTime);// btn on click invoke this fnc
 }
 
 window.addEventListener("yt-navigate-start", function() {
     createdElements.forEach(element => element.remove());
 });
+
+// IGNORE -------------
+
+commonRedundancies = ['twitter', 'tiktok', 'facebook', 'instagram', 'youtube', 
+'itunes', 'snapchat', 'reddit', 'discord', 'twitch', 'geni', 'lmg', 'youtu', 
+'spoti', 'soundcloud', 'https', 'media', 'group','sponsor', 'sponsors', 'referals', 
+'spotify', 'podcast', 'outro', 'github'];
