@@ -54,7 +54,7 @@ class YoutubeVideo {
       }
     })
     for (const sponsor in this.sponsors) {
-      if (this.sponsors[sponsor] < 3)
+      if (this.sponsors[sponsor] < 3) // Threshold
         delete this.sponsors[sponsor];
     }
   }
@@ -85,7 +85,7 @@ class YoutubeVideo {
 				result.add(trimmedWord);
 			}
 		})
-    this.incSponsorFrequency(result,1);
+    this.incSponsorFrequency(result,3);
 		return this.removeRedundant(result);
 	}
 

@@ -102,7 +102,7 @@ async function GetVideoInformation() {
                         }
                     }
                     newVideo.sponsorClusters[sponsor].count += 1
-                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].endTime * 1.4)
+                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].startTime * 1.4)
                         newVideo.sponsorClusters[sponsor].endTime = element.time
                     continue;
                 }

@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             for (const sponsor in currentVideoData) {
                 xValues.push(sponsor);
-                yValues.push(currentVideoData[sponsor].count * 10);
+                yValues.push(currentVideoData[sponsor].count);
             }
 
             console.log(yValues);
@@ -49,7 +49,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                       scales: {
                           yAxes: [{
                               ticks: {
-                                  display: false
+                                  display: false,
+                                  beginAtZero: true
                               }
                           }]
                       },
