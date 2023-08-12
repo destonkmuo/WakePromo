@@ -199,11 +199,18 @@ class YoutubeVideo {
 
 	cleanClusters() {
 		for (const sponsor in this.sponsorClusters) {
-		  if (this.sponsorClusters[sponsor].startTime == this.sponsorClusters[sponsor].endTime) {
+			if (this.sponsorClusters[sponsor].startTime == this.sponsorClusters[sponsor].endTime) {
 			delete this.sponsorClusters[sponsor];
-		  }
+			}
 		}
-	  }
+	}
+
+	generateTimeStamps() {
+		for (const sponsor in this.sponsorClusters) {
+			console.log(this.sponsorClusters[sponsor].startTime, this.sponsorClusters[sponsor].endTime);
+			createTimeStamp(this.sponsorClusters[sponsor].startTime, this.sponsorClusters[sponsor].endTime, this.duration);	
+		}
+	}
 
 	//Filters
 

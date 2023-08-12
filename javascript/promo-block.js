@@ -118,11 +118,13 @@ async function GetVideoInformation() {
 
     newVideo.cleanClusters()
 
+    newVideo.generateTimeStamps()
+
     console.log(newVideo.sponsorClusters);
 
     console.log(companies);
     console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
-    timeSkipIndicator(10, 60, videoInfo.duration);
+
 
 
     /* Once all data is collected and is useable:
@@ -143,8 +145,9 @@ async function GetVideoInformation() {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.isPopupOpen == true) {
         isPopupOpen = true;
-        GetVideoInformation()
+        GetVideoInformation();
         // You can process the message or send a response back if needed
+        createdElements.forEach(element => element.remove());
         chrome.runtime.sendMessage({
             type: 'video',
             data: 'data'

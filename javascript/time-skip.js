@@ -7,8 +7,7 @@
 
 var createdElements = [];
 
-function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration) {
-    createdElements.forEach(element => element.remove());
+function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
     // Check if the extension context is still valid before proceeding
     if (!chrome || !chrome.storage || !chrome.storage.sync || !chrome.storage.sync.get) {
         console.error("Extension context is not valid.");
@@ -16,19 +15,20 @@ function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration)
     }
 
     chrome.storage.sync.get(['showPromotionDuration'], function(result) {
-        if (result && result['showPromotionDuration'] == "false") { return; }
+        if (result && result['showPromotionDuration'] == "false") { return }
 
         var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
 
         var div = document.createElement("div");
 
-        div.style.width = 100 * promotionDuration/videoDuration+"%"; // proportion of the diff to the duration of the vid
+        div.style.width = 100 * (promotionEndTime - promotionStartTime)/videoDuration+"%"; // proportion of the diff to the duration of the vid
         div.style.height = "101%";
         div.style.background = "black";
         div.style.borderRadius = "1px";
         div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
         div.style.transition = 'all 200ms ease-in-out';
-        div.style.opacity = "50%";
+        div.style.opacity = "100%";
+        div.style.position = "absolute";
 
         progressBar.addEventListener("mouseenter", function() { 
             div.style.opacity = "90%";
@@ -37,8 +37,10 @@ function timeSkipIndicator(promotionStartTime, promotionDuration, videoDuration)
             div.style.opacity = "50%";
         })
     
+        document.body.appendChild(div);
         progressBar.appendChild(div);
         createdElements.push(div);   
+        console.log(div);
     });
 }
 
