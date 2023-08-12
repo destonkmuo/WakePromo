@@ -53,7 +53,7 @@ class YoutubeVideo {
       }
     })
     for (const sponsor in this.sponsors) {
-      if (this.sponsors[sponsor] < 4)
+      if (this.sponsors[sponsor] < 3)
         delete this.sponsors[sponsor];
     }
   }
@@ -138,11 +138,12 @@ class YoutubeVideo {
 		const sentences = this.description.split('\n');
 		const sentenceResult = [];
 		//Get length and retrieve the first 1/4;
+		const result = new Set();
+		if(sentences.length < 4) { return result }
 		for (var sentenceIndex = 0; sentenceIndex < 4; sentenceIndex++) {
 			sentenceResult.push(sentences[sentenceIndex]);
 		}
 
-		const result = new Set();
 		sentenceResult.forEach(sentence => {
 			var words = sentence.split(/\s+/);
 			words.forEach(word => {
@@ -214,4 +215,3 @@ class YoutubeVideo {
 	}
 	//STEP 2: QUERY TRANSCRIPT (Check if it is includes it or has a levenshtein distance >= 65%)
 }
-console.log(similarity('twitch', 'switch'));
