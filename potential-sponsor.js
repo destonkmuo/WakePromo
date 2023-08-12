@@ -25,6 +25,7 @@ class YoutubeVideo {
 		this.tags = videoInfo.tags != undefined ? videoInfo.tags : [];
 		this.category = videoInfo.category;
 		this.duration = videoInfo.duration;
+		this.sponsorClusters = [];
     this.sponsors = {};
 	}
 
@@ -194,6 +195,15 @@ class YoutubeVideo {
     this.incSponsorFrequency(result,1);
 		return this.removeRedundant(result);
 	}
+
+
+	cleanClusters() {
+		for (const sponsor in this.sponsorClusters) {
+		  if (this.sponsorClusters[sponsor].startTime == this.sponsorClusters[sponsor].endTime) {
+			delete this.sponsorClusters[sponsor];
+		  }
+		}
+	  }
 
 	//Filters
 

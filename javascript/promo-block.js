@@ -95,23 +95,30 @@ async function GetVideoInformation() {
     }, 500)
 
     console.log(newVideo.sponsors);
-    
-    transcript.forEach(element => {
-      const wordsInSentence = element.sentence.split(/\s+/);
 
-      wordsInSentence.forEach(transcriptWord => {
-        for(const sponsor in newVideo.sponsors) {
-          if (similarity(sponsor, transcriptWord) > .7) {
-            console.log(element);
-            continue;
-          }
-        }
-      })
+    transcript.forEach(element => {
+        const wordsInSentence = element.sentence.split(/\s+/);
+
+        wordsInSentence.forEach(transcriptWord => {
+            for (const sponsor in newVideo.sponsors) {
+                if (similarity(sponsor, transcriptWord) > 0.7) {
+                    if (newVideo.sponsorClusters[sponsor] == null) {
+                        newVideo.sponsorClusters[sponsor] = {
+                            startTime: element.time,
+                            endTime: element.time
+                        }
+                    }
+                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].startTime * 1.4 || similarity(sponsor, transcriptWord) > 0.9)
+                        newVideo.sponsorClusters[sponsor].endTime = element.time
+                    continue;
+                }
+            }
+        })
     })
 
-    function getClusters() {
-      
-    }
+    newVideo.cleanClusters()
+
+    console.log(newVideo.sponsorClusters);
 
     console.log(companies);
     console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
