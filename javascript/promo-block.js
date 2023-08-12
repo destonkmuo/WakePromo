@@ -51,7 +51,7 @@ async function GetVideoInformation() {
         //Pushes the sentence and time stamp to the transcript array
         transcript.push({
             time: events[speechSegment].tStartMs / 1000,
-            sentence: (sentence.map(word => word.utf8.toLowerCase()).join("")).replace('\n', "")
+            sentence: (sentence.map(word => word.utf8.toLowerCase()).join("")).replace('\n', " ")
         });
     }
     console.log(transcript);
@@ -101,6 +101,9 @@ async function GetVideoInformation() {
 
         wordsInSentence.forEach(transcriptWord => {
             for (const sponsor in newVideo.sponsors) {
+              if (sponsor == "cablemod") {
+                console.log(sponsor, similarity(sponsor, transcriptWord), transcriptWord)
+              }
                 if (similarity(sponsor, transcriptWord) > 0.7) {
                     if (newVideo.sponsorClusters[sponsor] == null) {
                         newVideo.sponsorClusters[sponsor] = {
@@ -122,7 +125,6 @@ async function GetVideoInformation() {
 
     console.log(newVideo.sponsorClusters);
 
-    console.log(companies);
     console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
 
 

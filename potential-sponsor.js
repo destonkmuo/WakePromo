@@ -49,6 +49,7 @@ class YoutubeVideo {
     context.forEach(context => {
       for (const sponsor in this.sponsors) {
         if (sponsor.includes(context)) {
+			console.log(sponsor)
           delete this.sponsors[sponsor];
         }
       }
@@ -200,6 +201,7 @@ class YoutubeVideo {
 	cleanClusters() {
 		for (const sponsor in this.sponsorClusters) {
 			if (this.sponsorClusters[sponsor].startTime == this.sponsorClusters[sponsor].endTime) {
+				console.log(sponsor)
 			delete this.sponsorClusters[sponsor];
 			}
 		}
