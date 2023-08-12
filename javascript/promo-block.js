@@ -1,6 +1,6 @@
 // Send a message to the extension's background script
 var isPopupOpen = false;
-
+var firstVideo = true;
 async function GetVideoInformation() {
     //ADD: Delete all created elements from an array
 
@@ -83,17 +83,6 @@ async function GetVideoInformation() {
 
     newVideo.cleanSponsorFrequency();
 
-    const SendDataToPopUp = setInterval(function() {
-        if (isPopupOpen) {
-            chrome.runtime.sendMessage({
-                type: 'video',
-                data: newVideo.sponsors,
-                name: videoInfo.title
-            });
-            clearInterval(SendDataToPopUp);
-        }
-    }, 500)
-
     console.log(newVideo.sponsors);
 
     transcript.forEach(element => {
@@ -108,10 +97,12 @@ async function GetVideoInformation() {
                     if (newVideo.sponsorClusters[sponsor] == null) {
                         newVideo.sponsorClusters[sponsor] = {
                             startTime: element.time,
-                            endTime: element.time
+                            endTime: element.time,
+                            count: 0
                         }
                     }
-                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].startTime * 1.4 || similarity(sponsor, transcriptWord) > 0.9)
+                    newVideo.sponsorClusters[sponsor].count += 1
+                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].endTime * 1.4)
                         newVideo.sponsorClusters[sponsor].endTime = element.time
                     continue;
                 }
@@ -121,27 +112,40 @@ async function GetVideoInformation() {
 
     newVideo.cleanClusters()
 
+    const SendDataToPopUp = setInterval(function() {
+      if (isPopupOpen) {
+          chrome.runtime.sendMessage({
+              type: 'video',
+              data: newVideo.sponsorClusters,
+              name: videoInfo.title
+          });
+          clearInterval(SendDataToPopUp);
+      }
+  }, 500)
+
     newVideo.generateTimeStamps()
 
     console.log(newVideo.sponsorClusters);
 
     console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
 
-
-
-    /* Once all data is collected and is useable:
     
-    chrome.storage.sync.get(['skipAdvertisements'], function(result) {
-        setInterval(function() {
+    const checkForTimeSkip = setInterval(function() {
+        chrome.storage.sync.get(['skipPromotions'], function(result) {
         var video = document.getElementsByClassName('video-stream html5-main-video')[0];
-        if (video.currentTime == promotionStartTime - 2 && result['skipAdvertisements] == "true"){
-          videoSkipTo(promotionEndTime);
-        } else if (video.currentTime == promotionStartTime - 5 && result['skipAdvertisements] == "false") {
-          timeSkipSuggestion(promotionEndTime);
+        for (const sponsor in newVideo.sponsorClusters) {
+        if (video.currentTime >= newVideo.sponsorClusters[sponsor].startTime - 2 && video.currentTime < newVideo.sponsorClusters[sponsor].endTime + 2 && result['skipPromotions'] == "true"){
+          videoSkipTo(newVideo.sponsorClusters[sponsor].endTime + 2);
+        } else if (video.currentTime >= newVideo.sponsorClusters[sponsor].startTime - 4 && video.currentTime < newVideo.sponsorClusters[sponsor].endTime + 4 && result['skipPromotions'] == "false") {
+          timeSkipSuggestion(newVideo.sponsorClusters[sponsor].endTime + 7);
         }
+      }
+    })
     }, 500)
-    }
-     */
+
+    window.addEventListener("yt-navigate-start",function() {if (!firstVideo) {clearInterval(checkForTimeSkip)}} )
+    firstVideo = false;
+     
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

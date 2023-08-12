@@ -25,8 +25,8 @@ class YoutubeVideo {
 		this.tags = videoInfo.tags != undefined ? videoInfo.tags : [];
 		this.category = videoInfo.category;
 		this.duration = videoInfo.duration;
-		this.sponsorClusters = [];
-    this.sponsors = {};
+		this.sponsorClusters = {};
+    	this.sponsors = {};
 	}
 
 	//NOTE: Find context and their synonyms and don't apply
@@ -49,7 +49,6 @@ class YoutubeVideo {
     context.forEach(context => {
       for (const sponsor in this.sponsors) {
         if (sponsor.includes(context)) {
-			console.log(sponsor)
           delete this.sponsors[sponsor];
         }
       }
@@ -82,7 +81,7 @@ class YoutubeVideo {
 		description.forEach(word => {
 			const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 			const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-			if (trimmedWord.length > 4 && !isWordValid(trimmedWord)) {
+			if (trimmedWord.length >= 4 && !isWordValid(trimmedWord)) {
 				result.add(trimmedWord);
 			}
 		})
@@ -97,7 +96,7 @@ class YoutubeVideo {
 		description.forEach(word => {
 			const descRegExp = new RegExp(/\d+|([A-Z])\w+/g);
 			const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-      if (trimmedWord.length > 4) {
+      if (trimmedWord.length >= 4) {
 				result.add(trimmedWord);
 			}
 		})
@@ -128,7 +127,7 @@ class YoutubeVideo {
 			const descRegExp = new RegExp(/^(http.+)/g);
 			var trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0] : "";
 			trimmedWord = removeNonDomainName(trimmedWord);
-			if (trimmedWord.length > 4)
+			if (trimmedWord.length >= 4)
 				result.add(trimmedWord);
 		})
     this.incSponsorFrequency(result,1);
@@ -151,7 +150,7 @@ class YoutubeVideo {
 			words.forEach(word => {
 				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 				const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-				if (trimmedWord.length > 4)
+				if (trimmedWord.length >= 4)
 					result.add(trimmedWord);
 			})
 		})
@@ -170,7 +169,7 @@ class YoutubeVideo {
 			words.forEach(word => {
 				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 				const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-				if (trimmedWord.length > 4)
+				if (trimmedWord.length >= 4)
 					result.add(trimmedWord);
 			})
 		})
@@ -179,17 +178,24 @@ class YoutubeVideo {
 	}
 
 	nounsRecog() {
-		var sentences = nlp(this.description).nouns().out('array');
+		const sentences = this.description.split('\n');
+		const sentenceResult = [];
+		//Get length and retrieve the first 1/4;
+		if(sentences.length < 4) { return result }
+		for (var sentenceIndex = 0; sentenceIndex < 4; sentenceIndex++) {
+			sentenceResult.push(sentences[sentenceIndex]);
+		}
+		var nlpSentences = nlp(sentenceResult.join(" ")).nouns().out('array');
 
 		var result = new Set();
 
-		sentences.forEach(sentence => {
+		nlpSentences.forEach(sentence => {
 			const words = sentence.split(/\s+/);
 
 			words.forEach(word => {
 				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 				const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-				if (trimmedWord.length > 4)
+				if (trimmedWord.length >= 4)
 					result.add(trimmedWord);
 			})
 		})

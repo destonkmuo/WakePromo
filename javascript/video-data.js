@@ -23,14 +23,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             currentVideoData = message.data;
             
             var xValues = [];
+            var yValues = [];
 
             for (const sponsor in currentVideoData) {
                 xValues.push(sponsor);
+                yValues.push(currentVideoData[sponsor].count * 10);
             }
-    
-            var yValues = [55, 49, 44, 24, 24];
-            var barColors = 'white';
-            
+
+            console.log(yValues);
+
             Chart.defaults.global.defaultFontColor = "#fff";
     
             if (xValues.length != 0) {
@@ -40,7 +41,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     data: {
                       labels: xValues,
                       datasets: [{
-                        backgroundColor: barColors,
+                        backgroundColor: 'white',
                         data: yValues
                       }]
                     },

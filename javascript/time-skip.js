@@ -45,13 +45,11 @@ function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
 }
 
 function videoSkipTo(promotionEndTime) {
-    createdElements.forEach(element => element.remove());
     var video = document.getElementsByClassName('video-stream html5-main-video')[0];
     video.currentTime = promotionEndTime;
 }
 
 function timeSkipSuggestion(promotionEndTime) {
-    createdElements.forEach(element => element.remove());
     videoSkipTo(promotionEndTime);// btn on click invoke this fnc
 }
 
