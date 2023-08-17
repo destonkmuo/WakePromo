@@ -27,7 +27,7 @@ function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
         div.style.borderRadius = "1px";
         div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
         div.style.transition = 'all 200ms ease-in-out';
-        div.style.opacity = "100%";
+        div.style.opacity = "50%";
         div.style.position = "absolute";
 
         progressBar.addEventListener("mouseenter", function() { 
@@ -36,11 +36,9 @@ function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
         progressBar.addEventListener("mouseleave", function() { 
             div.style.opacity = "50%";
         })
-    
-        document.body.appendChild(div);
+
         progressBar.appendChild(div);
         createdElements.push(div);   
-        console.log(div);
     });
 }
 
@@ -50,7 +48,7 @@ function videoSkipTo(promotionEndTime) {
 }
 
 function timeSkipSuggestion(promotionEndTime) {
-    videoSkipTo(promotionEndTime);// btn on click invoke this fnc
+    //videoSkipTo(promotionEndTime);// btn on click invoke this fnc
 }
 
 window.addEventListener("yt-navigate-start", function() {
@@ -59,7 +57,7 @@ window.addEventListener("yt-navigate-start", function() {
 
 // IGNORE -------------
 
-commonRedundancies = ['twitter', 'tiktok', 'facebook', 'instagram', 'youtube', 
+/*commonRedundancies = ['twitter', 'tiktok', 'facebook', 'instagram', 'youtube', 
 'itunes', 'snapchat', 'reddit', 'discord', 'twitch', 'geni', 'lmg', 'youtu', 
 'spoti', 'soundcloud', 'https', 'media', 'group','sponsor', 'sponsors', 'referals', 
-'spotify', 'podcast', 'outro', 'github'];
+'spotify', 'podcast', 'outro', 'github', 'video', 'wifi','storage'];*/

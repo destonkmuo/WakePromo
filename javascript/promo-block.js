@@ -34,11 +34,18 @@ async function GetVideoInformation() {
     }
 
     //Formats and finalizes the transcript URL
-    var transcriptURL = decodeURIComponent(JSON.parse(`"${transcriptRegExp.exec(text)[1] + "&fmt=json3"}"`));
-    transcriptURL = transcriptURL.substring(12, transcriptURL.length);
+    var transcriptHumURL = decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + "lang=en-US&fmt=json3"}"`));
+    var transcriptAutoURL = decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + "lang=en&fmt=json3"}"`));
+
+    //transcriptURL = transcriptURL.substring(12, transcriptURL.length);
 
     //NOTE: Train the model for sentences like "link in the description"
-    const transcriptJSON = await getJSON(transcriptURL);
+    var transcriptJSON;
+    try {
+      transcriptJSON = await getJSON(transcriptHumURL);
+    } catch(error) {
+      transcriptJSON = await getJSON(transcriptAutoURL);
+    }
     var transcript = [];
     var events = transcriptJSON.events;
 
@@ -51,7 +58,7 @@ async function GetVideoInformation() {
         //Pushes the sentence and time stamp to the transcript array
         transcript.push({
             time: events[speechSegment].tStartMs / 1000,
-            sentence: (sentence.map(word => word.utf8.toLowerCase()).join("")).replace('\n', " ")
+            sentence: (sentence.map(word => word.utf8.toLowerCase()).join("")).replace('\n', ' ').replace(/[^a-zA-Z\s]/g, '')
         });
     }
     console.log(transcript);
@@ -70,16 +77,14 @@ async function GetVideoInformation() {
         category: snippet.categoryId,
         duration: convertISO8601DurationToSeconds(contentDetails.duration) - 1
     }
-    var newVideo = new YoutubeVideo(videoInfo);
+    var newVideo = new PotentialSponsor(videoInfo);
 
     const companies = await (await newVideo.getCompanies()).json()
 
     const potentialSponsors1 = await newVideo.spellCheck();
     const potentialSponsors2 = newVideo.capitalCheck();
     const potentialSponsors3 = newVideo.extractedLinksCheck();
-    const potentialSponsors4 = newVideo.firstBreadth();
-    const potentialSponsors5 = newVideo.orgRecog();
-    const potentialSponsors6 = newVideo.nounsRecog();
+    const potentialSponsors4 = newVideo.nounsRecog();
 
     newVideo.cleanSponsorFrequency();
 
@@ -90,9 +95,6 @@ async function GetVideoInformation() {
 
         wordsInSentence.forEach(transcriptWord => {
             for (const sponsor in newVideo.sponsors) {
-              if (sponsor == "cablemod") {
-                console.log(sponsor, similarity(sponsor, transcriptWord), transcriptWord)
-              }
                 if (similarity(sponsor, transcriptWord) > 0.7) {
                     if (newVideo.sponsorClusters[sponsor] == null) {
                         newVideo.sponsorClusters[sponsor] = {
@@ -102,7 +104,7 @@ async function GetVideoInformation() {
                         }
                     }
                     newVideo.sponsorClusters[sponsor].count += 1
-                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].startTime * 1.4)
+                    if (element.time > newVideo.sponsorClusters[sponsor].endTime && element.time < newVideo.sponsorClusters[sponsor].startTime + 15)
                         newVideo.sponsorClusters[sponsor].endTime = element.time
                     continue;
                 }
@@ -121,13 +123,13 @@ async function GetVideoInformation() {
           });
           clearInterval(SendDataToPopUp);
       }
-  }, 500)
+  }, 1000)
 
     newVideo.generateTimeStamps()
 
     console.log(newVideo.sponsorClusters);
 
-    console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5, potentialSponsors6)
+    console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4)
 
     
     const checkForTimeSkip = setInterval(function() {
