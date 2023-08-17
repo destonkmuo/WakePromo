@@ -64,7 +64,7 @@ async function GetVideoInformation() {
     console.log(transcript);
 
     //Fetches the videos description using youtubes API
-    const videoJSON = await getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=AIzaSyDYT9crIFi_OXGxtdr4gkfe2gRKykgFuyU`);
+    const videoJSON = await getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=&${apiKey}`);
     const items = videoJSON.items[0];
     const snippet = items.snippet;
     const contentDetails = items.contentDetails;

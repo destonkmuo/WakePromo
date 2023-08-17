@@ -9,6 +9,7 @@
             "https://www.YouTube.com/*"
          ],
          "js":[
+            "javascript/config.js",
             "javascript/compromise-lib.js",
             "javascript/time-skip.js",
             "javascript/word-similarity.js",
