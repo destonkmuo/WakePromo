@@ -14,32 +14,34 @@ function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
         return;
     }
 
-    chrome.storage.sync.get(['showPromotionDuration'], function(result) {
-        if (result && result['showPromotionDuration'] == "false") { return }
-
-        var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
-
-        var div = document.createElement("div");
-
-        div.style.width = 100 * (promotionEndTime - promotionStartTime)/videoDuration+"%"; // proportion of the diff to the duration of the vid
-        div.style.height = "101%";
-        div.style.background = "black";
-        div.style.borderRadius = "1px";
-        div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
-        div.style.transition = 'all 200ms ease-in-out';
-        div.style.opacity = "50%";
-        div.style.position = "absolute";
-
-        progressBar.addEventListener("mouseenter", function() { 
-            div.style.opacity = "90%";
-        })
-        progressBar.addEventListener("mouseleave", function() { 
+    try {
+        chrome.storage.sync.get(['showPromotionDuration'], function(result) {
+            if (result && result['showPromotionDuration'] == "false") { return }
+    
+            var progressBar = document.getElementsByClassName('ytp-timed-markers-container')[0];
+    
+            var div = document.createElement("div");
+    
+            div.style.width = 100 * (promotionEndTime - promotionStartTime)/videoDuration+"%"; // proportion of the diff to the duration of the vid
+            div.style.height = "100%";
+            div.style.background = "black";
+            div.style.borderRadius = "1px";
+            div.style.marginLeft = 100 * promotionStartTime/videoDuration+"%"; // Proportion of start pos
+            div.style.transition = 'all 200ms ease-in-out';
             div.style.opacity = "50%";
-        })
-
-        progressBar.appendChild(div);
-        createdElements.push(div);   
-    });
+            div.style.position = "absolute";
+    
+            progressBar.addEventListener("mouseenter", function() { 
+                div.style.opacity = "90%";
+            })
+            progressBar.addEventListener("mouseleave", function() { 
+                div.style.opacity = "50%";
+            })
+    
+            progressBar.appendChild(div);
+            createdElements.push(div);   
+        });
+    } catch (error) {}
 }
 
 function videoSkipTo(promotionEndTime) {
