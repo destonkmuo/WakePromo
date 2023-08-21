@@ -56,10 +56,3 @@ function timeSkipSuggestion(promotionEndTime) {
 window.addEventListener("yt-navigate-start", function() {
     createdElements.forEach(element => element.remove());
 });
-
-// IGNORE -------------
-
-/*commonRedundancies = ['twitter', 'tiktok', 'facebook', 'instagram', 'youtube', 
-'itunes', 'snapchat', 'reddit', 'discord', 'twitch', 'geni', 'lmg', 'youtu', 
-'spoti', 'soundcloud', 'https', 'media', 'group','sponsor', 'sponsors', 'referals', 
-'spotify', 'podcast', 'outro', 'github', 'video', 'wifi','storage'];*/

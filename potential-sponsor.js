@@ -26,6 +26,7 @@ class PotentialSponsor {
 		this.category = videoInfo.category;
 		this.duration = videoInfo.duration;
 		this.sponsorClusters = {};
+        this.PotentialSponsors = {};
 		this.sponsors = {};
 	}
 
@@ -48,8 +49,8 @@ class PotentialSponsor {
 
 	incSponsorFrequency(set, weight) {
 		set.forEach(element => {
-			if (this.sponsors[element] == null) this.sponsors[element] = 0;
-			this.sponsors[element] += weight;
+			if (this.PotentialSponsors[element] == null) this.PotentialSponsors[element] = 0;
+			this.PotentialSponsors[element] += weight;
 		})
 	}
 
@@ -66,33 +67,18 @@ class PotentialSponsor {
 		})
 
 		context.forEach(context => {
-			for (const sponsor in this.sponsors) {
+			for (const sponsor in this.PotentialSponsors) {
 				//Remove context and low threshold elements
-				if (similarity(sponsor, context) > .7 || this.sponsors[sponsor] < 4) {
-					delete this.sponsors[sponsor];
+				if (similarity(sponsor, context) > .7 || this.PotentialSponsors[sponsor] < 5 || sponsor.length < 3) {
+					delete this.PotentialSponsors[sponsor];
 				}
 			}
 		})
 	}
 
-	firstBreadth() {
-		const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
-		const sentenceResult = [];
-
-		for (var sentenceIndex = 0; sentenceIndex < sentences.length; sentenceIndex++) {
-			if (sentences[sentenceIndex].length < 1) delete sentences[sentenceIndex];
-
-			sentenceResult.push(sentences[sentenceIndex]);
-
-			if (sentenceIndex == 4) break;
-		}
-
-		return sentenceResult.join('\n');
-	}
-
-	//SPONSOR FIN
+	//Potential Sponsors
 	async spellCheck() {
-		const description = this.firstBreadth().split(/\s+/);
+		const description = this.description.split(/\s+/);
 		const dictionary = await loadDictionary();
 		var result = new Set();
 
@@ -107,12 +93,12 @@ class PotentialSponsor {
 				result.add(trimmedWord);
 			}
 		})
-		this.incSponsorFrequency(result, 1);
+		this.incSponsorFrequency(result, 3);
 		return result;
 	}
 
 	capitalCheck() {
-		const description = this.firstBreadth().split(/\s+/);
+		const description = this.description.split(/\s+/);
 		var result = new Set();
 
 		description.forEach(word => {
@@ -122,12 +108,12 @@ class PotentialSponsor {
 				result.add(trimmedWord);
 			}
 		})
-		this.incSponsorFrequency(result, 1);
+		this.incSponsorFrequency(result, 2);
 		return result;
 	}
 
 	extractedLinksCheck() {
-		const description = this.firstBreadth();
+		const description = this.description;
 		var result = new Set();
 
 		//Get the end of links as well
@@ -162,17 +148,18 @@ class PotentialSponsor {
 			if (nonDomain.length > 3) result.add(nonDomain.toLowerCase());
 
 			var nonPath = removeNonPath(url).match(new RegExp(/\d+|([a-zA-Z])\w+/)) != null ? removeNonPath(url).match(new RegExp(/\d+|([a-zA-Z])\w+/)) : [];
+
 			nonPath.forEach(pathElement => {
-				if (pathElement.length > 3) result.add(pathElement.toLowerCase());
+				if (pathElement != undefined && pathElement.length > 3) result.add(pathElement.toLowerCase());
 			})
 		})
 
-		this.incSponsorFrequency(result, 3)
+		this.incSponsorFrequency(result, 5);
 		return result;
 	}
 
 	nounsRecog() {
-		const description = this.firstBreadth();
+		const description = this.description;
 
 		var result = new Set();
 		//Get length and retrieve the first 1/4;
@@ -184,31 +171,71 @@ class PotentialSponsor {
 			words.forEach(word => {
 				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 				const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-				if (trimmedWord.length >= 4)
-					result.add(trimmedWord);
+				if (trimmedWord.length >= 4) result.add(trimmedWord);
 			})
 		})
-		this.incSponsorFrequency(result, 1);
+		this.incSponsorFrequency(result, 2);
 		return result;
 	}
 
 	//Filters
+    firstBreadth() {
+		const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
 
-	//Link withing 5-10 words
+        var result = new Set();
+
+        const descRegExp = new RegExp(/\b[\w\d]+\b/g);
+
+        const shortDesc = sentences.filter(sentence => sentences.indexOf(sentence) < 10).join(" ").match(descRegExp);
+
+        for (const potentialSponsor in this.PotentialSponsors) {
+            if (shortDesc.includes(potentialSponsor)) result.add(potentialSponsor);
+        }
+		return result;
+	}
+
+	//Proximity to Links
 	proximityToLink() {
+        const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
 
+        var result = new Set();
+
+        sentences.forEach(sentence => {
+            if (sentence.includes('http')) {
+                for (const potentialSponsor in this.PotentialSponsors) {
+                    if (sentence.includes(potentialSponsor)) {
+                        result.add(potentialSponsor);
+                    }
+                }
+            }
+        })
+        return result;
 	}
 
-	//Proximity to synonym
-	proximityToSynonym() {
+	//Proximity to Key Words
+	proximityToRelevance() {
+        const synonyms = ['sponsor', 'sponsoring', 'sponsorship', 'promotion', 'promo', 'advert', 'advertise', 'advertisement' , '%', 'trial' , '$', 'partner', 'sign', 'learn', 'thanks', 'save', 'code', 'you'];
 
+        const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
+
+        var result = new Set();
+
+        sentences.forEach(sentence => {
+            const words = sentence.split(/\s+/);
+            synonyms.forEach(synonym => {
+                if (words.some(word => word.includes(synonym))) {
+                    for (const potentialSponsor in this.PotentialSponsors) {
+                        if (sentence.includes(potentialSponsor)) result.add(potentialSponsor);
+                    }
+                }
+            })
+        })
+        return result;
 	}
-
-	//context
-
 
 	getCompanies() {
 		return getRequest('https://raw.githubusercontent.com/destonkmuo/Wake-Promo-Extension/main/static/companies.json');
 	}
+
 	//STEP 2: QUERY TRANSCRIPT (Check if it is includes it or has a levenshtein distance >= 65%)
 }

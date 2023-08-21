@@ -4,11 +4,11 @@ var firstVideo = true;
 async function GetVideoInformation() {
 	//ADD: Delete all created elements from an array
 
-	var searchQuery = this.location.search
+	var searchQuery = this.location.search;
 
 	//Accesses the search query and returns the video ID after "?v="
 	var endOfQuery = searchQuery.indexOf("&") > 0 && searchQuery.indexOf("&") || searchQuery.length;
-	var videoID = decodeURIComponent(this.location.search.substring(searchQuery.indexOf("?v=") + 3, endOfQuery))
+	var videoID = decodeURIComponent(this.location.search.substring(searchQuery.indexOf("?v=") + 3, endOfQuery));
 
 	//Scrapes through the body of the HTML file and accesses the transcript API
 	var transcriptRegExp = new RegExp(/playerCaptionsTracklistRenderer.*?(youtube.com\/api\/timedtext.*?)"/);
@@ -27,11 +27,9 @@ async function GetVideoInformation() {
 		return data;
 	}
 
-	const text = await getInnerHTML()
+	const text = await getInnerHTML();
 	//Guard condition
-	if (transcriptRegExp.exec(text) == null || videoID == null || videoID == "") {
-		return
-	}
+	if (transcriptRegExp.exec(text) == null || videoID == null || videoID == "") { return }
 
 	//Formats and finalizes the transcript URL
 	var transcriptHumURL = decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + "lang=en-US&fmt=json3"}"`));
@@ -44,7 +42,7 @@ async function GetVideoInformation() {
 	} catch (error) {
 		transcriptJSON = await getJSON(transcriptAutoURL);
 	}
-    
+
 	var transcript = [];
 	var events = transcriptJSON.events;
 
@@ -60,7 +58,7 @@ async function GetVideoInformation() {
 			sentence: (sentence.map(word => word.utf8.toLowerCase()).join("")).replace('\n', ' ').replace(/[^a-zA-Z\s]/g, '')
 		});
 	}
-	console.log(transcript);
+	//console.log(transcript);
 
 	//Fetches the videos description using youtubes API
 	const videoJSON = await getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=${apiKey}`);
@@ -78,16 +76,18 @@ async function GetVideoInformation() {
 	}
 	var newVideo = new PotentialSponsor(videoInfo);
 
-	const companies = await (await newVideo.getCompanies()).json()
+	//const companies = await (await newVideo.getCompanies()).json();
 
 	const potentialSponsors1 = await newVideo.spellCheck();
 	const potentialSponsors2 = newVideo.capitalCheck();
 	const potentialSponsors3 = newVideo.extractedLinksCheck();
 	const potentialSponsors4 = newVideo.nounsRecog();
 
-	newVideo.cleanSponsorFrequency();
+    newVideo.cleanSponsorFrequency();
 
-	console.log(newVideo.sponsors);
+    const sponsorFilter1 = newVideo.firstBreadth();
+    const sponsorFilter2 = newVideo.proximityToLink();
+    const sponsorFilter3 = newVideo.proximityToRelevance();
 
 	transcript.forEach(element => {
 		const wordsInSentence = element.sentence.split(/\s+/);
@@ -126,11 +126,12 @@ async function GetVideoInformation() {
 		}
 	}, 1000)
 
-	newVideo.generateTimeStamps()
-
+	newVideo.generateTimeStamps();
+    
+    console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsorClusters);
-
-	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4)
+	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4);
+    console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3);
 
 
 	const checkForTimeSkip = setInterval(function() {
@@ -150,7 +151,7 @@ async function GetVideoInformation() {
 
 	window.addEventListener("yt-navigate-start", function() {
 		if (!firstVideo) {
-			clearInterval(checkForTimeSkip)
+			clearInterval(checkForTimeSkip);
 		}
 	})
 	firstVideo = false;
