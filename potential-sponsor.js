@@ -242,15 +242,14 @@ class PotentialSponsor {
 
 		const response = await (await getRequest('https://raw.githubusercontent.com/destonkmuo/Wake-Promo-Extension/main/static/companies.json')).json()
 
-		console.log(response.companies)
-
 		description.forEach(word => {
 			for (const company in response.companies) {
 				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 				const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
-				console.log(response.companies[company]);
 				if (trimmedWord.length >= 3 && similarity(response.companies[company].toLowerCase(), trimmedWord) > 0.8) {
-					result.add(trimmedWord);
+					for (const potentialSponsor in this.PotentialSponsors) {
+                        if (trimmedWord.includes(potentialSponsor)) result.add(trimmedWord);
+                    }
 				}
 			}
 		})

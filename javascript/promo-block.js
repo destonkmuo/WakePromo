@@ -2,6 +2,7 @@
 var isPopupOpen = false;
 var firstVideo = true;
 async function GetVideoInformation() {
+	let start = Date.now();
 	//ADD: Delete all created elements from an array
 
 	var searchQuery = this.location.search;
@@ -88,8 +89,7 @@ async function GetVideoInformation() {
     const sponsorFilter1 = newVideo.firstBreadth();
     const sponsorFilter2 = newVideo.proximityToLink();
     const sponsorFilter3 = newVideo.proximityToRelevance();
-
-	newVideo.getListOfCommonCompanies();
+	const sponsorFilter4 = newVideo.getListOfCommonCompanies();
 
 	transcript.forEach(element => {
 		const wordsInSentence = element.sentence.split(/\s+/);
@@ -133,8 +133,10 @@ async function GetVideoInformation() {
     console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsorClusters);
 	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4);
-    console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3);
+    console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4);
 
+	let timeTaken = Date.now() - start;
+	console.log("Total time taken : " + timeTaken/1000 + "seconds");
 
 	const checkForTimeSkip = setInterval(function() {
 		try {
