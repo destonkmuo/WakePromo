@@ -180,7 +180,7 @@ class PotentialSponsor {
 
 	//Filters
     firstBreadth() {
-		const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
+		const sentences = this.description.toLowerCase().split('\n').filter(sentence => sentence.length > 1);
 
         var result = new Set();
 
@@ -196,7 +196,7 @@ class PotentialSponsor {
 
 	//Proximity to Links
 	proximityToLink() {
-        const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
+        const sentences = this.description.toLowerCase().split('\n').filter(sentence => sentence.length > 1);
 
         var result = new Set();
 
@@ -214,16 +214,17 @@ class PotentialSponsor {
 
 	//Proximity to Key Words
 	proximityToRelevance() {
-        const synonyms = ['sponsor', 'sponsoring', 'sponsorship', 'promotion', 'promo', 'advert', 'advertise', 'advertisement' , '%', 'trial' , '$', 'partner', 'sign', 'learn', 'thanks', 'save', 'code', 'you'];
+        const synonyms = ['sponsor', 'sponsoring', 'sponsorship', 'promotion', 'promo', 'advert', 'advertise', 'advertisement' , '%', 'trial' , '$', 'partner', 'sign', 'learn', 'thanks', 'save', 'code', 'you',
+    'sale', 'checkout'];
 
         const sentences = this.description.split('\n').filter(sentence => sentence.length > 1);
 
         var result = new Set();
 
         sentences.forEach(sentence => {
-            const words = sentence.split(/\s+/);
+            sentence = sentence.toLowerCase();
             synonyms.forEach(synonym => {
-                if (words.some(word => word.includes(synonym))) {
+                if (sentence.includes(synonym)) {
                     for (const potentialSponsor in this.PotentialSponsors) {
                         if (sentence.includes(potentialSponsor)) result.add(potentialSponsor);
                     }
@@ -233,8 +234,27 @@ class PotentialSponsor {
         return result;
 	}
 
-	getCompanies() {
-		return getRequest('https://raw.githubusercontent.com/destonkmuo/Wake-Promo-Extension/main/static/companies.json');
+
+	//Guaranteed filter
+	async getListOfCommonCompanies() {
+		const description = this.description.split(/\s+/);
+		var result = new Set();
+
+		const response = await (await getRequest('https://raw.githubusercontent.com/destonkmuo/Wake-Promo-Extension/main/static/companies.json')).json()
+
+		console.log(response.companies)
+
+		description.forEach(word => {
+			for (const company in response.companies) {
+				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
+				const trimmedWord = word.match(descRegExp) != null ? word.match(descRegExp)[0].toLowerCase() : "";
+				console.log(response.companies[company]);
+				if (trimmedWord.length >= 3 && similarity(response.companies[company].toLowerCase(), trimmedWord) > 0.8) {
+					result.add(trimmedWord);
+				}
+			}
+		})
+		return result;
 	}
 
 	//STEP 2: QUERY TRANSCRIPT (Check if it is includes it or has a levenshtein distance >= 65%)

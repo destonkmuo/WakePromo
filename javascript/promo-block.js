@@ -89,6 +89,8 @@ async function GetVideoInformation() {
     const sponsorFilter2 = newVideo.proximityToLink();
     const sponsorFilter3 = newVideo.proximityToRelevance();
 
+	newVideo.getListOfCommonCompanies();
+
 	transcript.forEach(element => {
 		const wordsInSentence = element.sentence.split(/\s+/);
 
