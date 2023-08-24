@@ -8,17 +8,6 @@
 var createdElements = [];
 
 function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
-	// Check if the extension context is still valid before proceeding
-	if (
-		!chrome ||
-		!chrome.storage ||
-		!chrome.storage.sync ||
-		!chrome.storage.sync.get
-	) {
-		console.error('Extension context is not valid.');
-		return;
-	}
-
 	try {
 		chrome.storage.sync.get(['showPromotionDuration'], function (result) {
 			if (result && result['showPromotionDuration'] == 'false') {
