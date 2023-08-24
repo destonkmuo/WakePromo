@@ -32,16 +32,13 @@ async function GetVideoInformation() {
 	//Guard condition
 	if (transcriptRegExp.exec(text) == null || videoID == null || videoID == "") { return }
 
-	//Formats and finalizes the transcript URL
-	var transcriptHumURL = decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + "lang=en-US&fmt=json3"}"`));
-	var transcriptAutoURL = decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + "lang=en&fmt=json3"}"`));
-
-	//NOTE: Train the model for sentences like "link in the description"
 	var transcriptJSON;
 	try {
-		transcriptJSON = await getJSON(transcriptHumURL);
+		//Creator's Transcript + Formats and finalizes the transcript URL
+		transcriptJSON = await getJSON(decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + "lang=en-US&fmt=json3"}"`)));
 	} catch (error) {
-		transcriptJSON = await getJSON(transcriptAutoURL);
+		//Auto-generated Transcript + Formats and finalizes the transcript URL
+		transcriptJSON = await getJSON(decodeURIComponent(JSON.parse(`"${"https://" + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + "lang=en&fmt=json3"}"`)));
 	}
 
 	var transcript = [];
@@ -59,13 +56,11 @@ async function GetVideoInformation() {
 			sentence: (sentence.map(word => word.utf8.toLowerCase()).join("")).replace('\n', ' ').replace(/[^a-zA-Z\s]/g, '')
 		});
 	}
-	//console.log(transcript);
 
 	//Fetches the videos description using youtubes API
 	const videoJSON = await getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=${apiKey}`);
 	const items = videoJSON.items[0];
 	const snippet = items.snippet;
-	const contentDetails = items.contentDetails;
 
 	var videoInfo = {
 		description: snippet.description,
@@ -73,11 +68,10 @@ async function GetVideoInformation() {
 		channelTitle: snippet.channelTitle,
 		tags: snippet.tags,
 		category: snippet.categoryId,
-		duration: convertISO8601DurationToSeconds(contentDetails.duration) - 1
+		duration: convertISO8601DurationToSeconds(items.contentDetails.duration) - 1
 	}
-	var newVideo = new PotentialSponsor(videoInfo);
 
-	//const companies = await (await newVideo.getCompanies()).json();
+	var newVideo = new PotentialSponsor({description: videoInfo.description, title: videoInfo.title, channelTitle: videoInfo.channelTitle, tags: videoInfo.tags, category: videoInfo.categoryId, duration: videoInfo.duration});
 
 	const potentialSponsors1 = await newVideo.spellCheck();
 	const potentialSponsors2 = newVideo.capitalCheck();
@@ -89,7 +83,7 @@ async function GetVideoInformation() {
     const sponsorFilter1 = newVideo.firstBreadth();
     const sponsorFilter2 = newVideo.proximityToLink();
     const sponsorFilter3 = newVideo.proximityToRelevance();
-	const sponsorFilter4 = newVideo.getListOfCommonCompanies();
+	const sponsorFilter4 = await newVideo.getListOfCommonCompanies();
 
 	transcript.forEach(element => {
 		const wordsInSentence = element.sentence.split(/\s+/);
@@ -158,8 +152,8 @@ async function GetVideoInformation() {
 			clearInterval(checkForTimeSkip);
 		}
 	})
-	firstVideo = false;
 
+	firstVideo = false;
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
