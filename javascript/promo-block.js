@@ -97,6 +97,8 @@ async function GetVideoInformation() {
 		});
 	}
 
+	console.log(transcript);
+
 	//Fetches the videos description using youtubes API
 	const videoJSON = await getJSON(
 		`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=${apiKey}`,
@@ -111,6 +113,7 @@ async function GetVideoInformation() {
 		tags: snippet.tags,
 		category: snippet.categoryId,
 		duration: convertISO8601DurationToSeconds(items.contentDetails.duration) - 1,
+		transcript: transcript
 	};
 
 	var newVideo = new PotentialSponsor({
@@ -120,6 +123,7 @@ async function GetVideoInformation() {
 		tags: videoInfo.tags,
 		category: videoInfo.categoryId,
 		duration: videoInfo.duration,
+		transcript: videoInfo.transcript
 	});
 
 	const potentialSponsors1 = await newVideo.spellCheck();
@@ -133,6 +137,13 @@ async function GetVideoInformation() {
 	const sponsorFilter2 = newVideo.proximityToLink();
 	const sponsorFilter3 = newVideo.proximityToRelevance();
 	const sponsorFilter4 = await newVideo.getListOfCommonCompanies();
+	const sponsorFilter5 = newVideo.transcriptProximityToRelevance();
+
+	for (const sponsor in newVideo.sponsors) {
+		if (newVideo.sponsors[sponsor] < 3) delete newVideo.sponsors[sponsor];
+	}
+
+	console.log(newVideo.sponsors);
 
 	transcript.forEach((element) => {
 		const wordsInSentence = element.sentence.split(/\s+/);
@@ -165,13 +176,8 @@ async function GetVideoInformation() {
 
 	console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsorClusters);
-	console.log(
-		potentialSponsors1,
-		potentialSponsors2,
-		potentialSponsors3,
-		potentialSponsors4,
-	);
-	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4);
+	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4,);
+	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4, sponsorFilter5);
 
 	let timeTaken = Date.now() - start;
 	console.log('Total time taken : ' + timeTaken / 1000 + 'seconds');
@@ -219,6 +225,7 @@ async function GetVideoInformation() {
 
 async function OnNewVideo() {
 	const videoInfo = await GetVideoInformation();
+	//ERROR: On Message Undefine???
 	chrome.runtime.onMessage.addListener((message) => {
 		if (message.isPopupOpen == true) {
 			chrome.runtime.sendMessage(videoInfo);
