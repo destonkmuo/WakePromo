@@ -1,5 +1,6 @@
 var currentVideoName;
 var currentVideoData;
+var chart;
 
 chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 	const activeTab = tabs[0];
@@ -32,9 +33,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 			Chart.defaults.global.defaultFontColor = '#fff';
 
-			if (xValues.length != 0) {
+			if (xValues.length != 0 && chart == undefined) {
 				document.body.style.height = '500px';
-				new Chart('chart', {
+				chart = new Chart('chart', {
 					type: 'bar',
 					data: {
 						labels: xValues,
@@ -63,7 +64,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 						},
 					},
 				});
-			}
+			} else if (chart != undefined) {
+                chart.options = {
+					type: 'bar',
+					data: {
+						labels: xValues,
+						datasets: [
+							{
+								backgroundColor: 'white',
+								data: yValues,
+							},
+						],
+					},
+					options: {
+						scales: {
+							yAxes: [
+								{
+									ticks: {
+										display: false,
+										beginAtZero: true,
+									},
+								},
+							],
+						},
+						legend: { display: false },
+						title: {
+							display: true,
+							text: 'Potential Sponsors',
+						},
+					},
+				}
+                chart.update();
+            }
 		}
 
 		if (currentVideoName != message.name) {
