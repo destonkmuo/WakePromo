@@ -1,6 +1,3 @@
-// Send a message to the extension's background script
-var firstVideo = true;
-
 async function GetVideoInformation() {
 	let start = Date.now();
 	//ADD: Delete all created elements from an array
@@ -116,59 +113,62 @@ async function GetVideoInformation() {
 		transcript: transcript
 	};
 
-	var newVideo = new PotentialSponsor({
-		description: videoInfo.description,
-		title: videoInfo.title,
-		channelTitle: videoInfo.channelTitle,
-		tags: videoInfo.tags,
-		category: videoInfo.categoryId,
-		duration: videoInfo.duration,
-		transcript: videoInfo.transcript
-	});
+	var newVideo = new PotentialSponsor(videoInfo);
 
 	const potentialSponsors1 = await newVideo.spellCheck();
 	const potentialSponsors2 = newVideo.capitalCheck();
 	const potentialSponsors3 = newVideo.extractedLinksCheck();
 	const potentialSponsors4 = newVideo.nounsRecog();
+	const potentialSponsors5 = await newVideo.companyRecog();
 
 	newVideo.cleanSponsorFrequency();
 
 	const sponsorFilter1 = newVideo.firstBreadth();
 	const sponsorFilter2 = newVideo.proximityToLink();
 	const sponsorFilter3 = newVideo.proximityToRelevance();
-	const sponsorFilter4 = await newVideo.getListOfCommonCompanies();
-	const sponsorFilter5 = newVideo.transcriptProximityToRelevance();
+	const sponsorFilter4 = newVideo.transcriptProximityToRelevance();
 
-	for (const sponsor in newVideo.sponsors) {
-		if (newVideo.sponsors[sponsor] < 3) delete newVideo.sponsors[sponsor];
-	}
+	for (const sponsor in newVideo.sponsors)
+		if (newVideo.sponsors[sponsor] < 8) delete newVideo.sponsors[sponsor];
+	
 
 	console.log(newVideo.sponsors);
 
-	transcript.forEach((element) => {
+	for (const transcriptIndex in transcript) {
+		const element = transcript[transcriptIndex];
 		const wordsInSentence = element.sentence.split(/\s+/);
 
 		wordsInSentence.forEach((transcriptWord) => {
-			for (const sponsor in newVideo.sponsors) {
-				if (similarity(sponsor, transcriptWord) > 0.7) {
-					if (newVideo.sponsorClusters[sponsor] == null) {
-						newVideo.sponsorClusters[sponsor] = {
-							startTime: element.time,
-							endTime: element.time,
-							count: 0,
-						};
+			if (transcriptWord.length >= 4) {
+				if (transcriptWord == "dbrand") {
+					console.log(element.time);
+				}
+				for (const sponsor in newVideo.sponsors) {
+					if (similarity(sponsor, transcriptWord) > 0.7 || (transcriptWord.length >= sponsor.length * 0.4 && sponsor.includes(transcriptWord))) {
+						if (newVideo.sponsorClusters[sponsor] == null) {
+							newVideo.sponsorClusters[sponsor] = {
+								startTime: element.time,
+								endTime: element.time, 
+								count: 0,
+							}
+						}
+						newVideo.sponsorClusters[sponsor].count += 1;
+						if (
+							element.time > newVideo.sponsorClusters[sponsor].startTime &&
+							element.time <= newVideo.sponsorClusters[sponsor].endTime + 20
+						) {
+							try {
+								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
+							} catch(error) {
+								newVideo.sponsorClusters[sponsor].endTime = element.time;
+							}
+						}
+						continue;
 					}
-					newVideo.sponsorClusters[sponsor].count += 1;
-					if (
-						element.time > newVideo.sponsorClusters[sponsor].endTime &&
-						element.time < newVideo.sponsorClusters[sponsor].startTime + 15
-					)
-						newVideo.sponsorClusters[sponsor].endTime = element.time;
-					continue;
 				}
 			}
 		});
-	});
+	}
 
 	newVideo.cleanClusters();
 
@@ -176,8 +176,8 @@ async function GetVideoInformation() {
 
 	console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsorClusters);
-	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4,);
-	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4, sponsorFilter5);
+	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5);
+	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4);
 
 	let timeTaken = Date.now() - start;
 	console.log('Total time taken : ' + timeTaken / 1000 + 'seconds');
@@ -209,9 +209,7 @@ async function GetVideoInformation() {
 	}, 500);
 
 	window.addEventListener('yt-navigate-start', function () {
-		if (!firstVideo) {
-			clearInterval(checkForTimeSkip);
-		}
+		clearInterval(checkForTimeSkip);
 	});
 
 	firstVideo = false;
@@ -225,11 +223,11 @@ async function GetVideoInformation() {
 
 async function OnNewVideo() {
 	const videoInfo = await GetVideoInformation();
+
 	//ERROR: On Message Undefine???
 	chrome.runtime.onMessage.addListener((message) => {
 		if (message.isPopupOpen == true) {
 			chrome.runtime.sendMessage(videoInfo);
-			createdElements.forEach((element) => element.remove());
 		}
 	});
 }
