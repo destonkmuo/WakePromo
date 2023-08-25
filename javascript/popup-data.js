@@ -23,6 +23,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		function createChart() {
 			currentVideoData = message.data;
 
+			document.getElementById('copy-details').addEventListener("click", (event) => {
+				console.log(message.responseData);
+				navigator.clipboard.writeText(message.responseData);
+			});
+
 			var xValues = [];
 			var yValues = [];
 

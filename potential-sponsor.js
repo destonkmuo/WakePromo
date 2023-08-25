@@ -106,8 +106,7 @@ class PotentialSponsor {
     const videoAttributes = [
       this.title,
       this.channelTitle,
-      this.tags,
-      this.channelTitle,
+      //this.tags,
     ];
 
     videoAttributes.forEach((attribute) => {

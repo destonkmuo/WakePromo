@@ -142,6 +142,8 @@ async function GetVideoInformation() {
 
 	console.log(newVideo.sponsors);
 
+
+	//NOTE: IMPLEMENT OLD WORDS NEW CLUSTER
 	for (const transcriptIndex in transcript) {
 		const element = transcript[transcriptIndex];
 		const wordsInSentence = element.sentence.split(/\s+/);
@@ -226,6 +228,7 @@ async function GetVideoInformation() {
 		type: 'videoInfo',
 		data: newVideo.sponsorClusters,
 		name: videoInfo.title,
+		responseData: "video-id: " + videoID + "\ntranscript-url:" + decodeURIComponent(JSON.parse( `"${ 'https://' + transcriptRegExp .exec(text)[1] .substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + 'lang=en&fmt=json3' }"`))+ "\npotential-sponsors:" + Object.keys(newVideo.sponsors).join(', ')
 	};
 }
 
