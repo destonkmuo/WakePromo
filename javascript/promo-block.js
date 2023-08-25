@@ -34,7 +34,11 @@ async function GetVideoInformation() {
 	const text = await getInnerHTML();
 	//Guard condition
 	if (transcriptRegExp.exec(text) == null || videoID == null || videoID == '') {
-		return;
+		return {
+			type: 'videoInfo',
+			data: null,
+			name: null,
+		};
 	}
 
 	var transcriptJSON;
@@ -70,7 +74,11 @@ async function GetVideoInformation() {
 		);
 	}
 	if (transcriptJSON == null) {
-		return;
+		return {
+			type: 'videoInfo',
+			data: null,
+			name: null,
+		};
 	}
 
 	var transcript = [];
@@ -155,7 +163,7 @@ async function GetVideoInformation() {
 						newVideo.sponsorClusters[sponsor].count += 1;
 						if (
 							element.time > newVideo.sponsorClusters[sponsor].startTime &&
-							element.time <= newVideo.sponsorClusters[sponsor].endTime + 20
+							element.time <= newVideo.sponsorClusters[sponsor].endTime + 60
 						) {
 							try {
 								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
