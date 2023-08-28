@@ -43,5 +43,4 @@ Happy skipping! 🚀🎉
 
 For more information or to report any issues, please visit our website **https://www.wakepromo.com** or email us at **wakepromo.extension@gmail.com**.
 
-
-
+**This program has been bundled with the Chart.js and the Compromise.js libraries.**
