@@ -24,7 +24,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 			currentVideoData = message.data;
 
 			document.getElementById('copy-details').addEventListener("click", (event) => {
-				console.log(message.responseData);
 				navigator.clipboard.writeText(message.responseData);
 			});
 
@@ -47,7 +46,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 						datasets: [
 							{
 								backgroundColor: 'white',
-								data: yValues,
+								data: yValues
 							},
 						],
 					},
@@ -70,35 +69,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 					},
 				});
 			} else if (chart != undefined) {
-                chart.options = {
-					type: 'bar',
-					data: {
-						labels: xValues,
-						datasets: [
-							{
-								backgroundColor: 'white',
-								data: yValues,
-							},
-						],
-					},
-					options: {
-						scales: {
-							yAxes: [
-								{
-									ticks: {
-										display: false,
-										beginAtZero: true,
-									},
-								},
-							],
-						},
-						legend: { display: false },
-						title: {
-							display: true,
-							text: 'Potential Sponsors',
-						},
-					},
-				}
+                chart.data.labels = xValues;
+				chart.data.datasets = [{ backgroundColor: 'white', data: yValues}];
                 chart.update();
             }
 		}
