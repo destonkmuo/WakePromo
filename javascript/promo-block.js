@@ -42,10 +42,11 @@ async function GetVideoInformation() {
 	var transcriptJSON;
 	try {
 		//Creator's Transcript + Formats and finalizes the transcript URL
+		console.log(decodeURIComponent(JSON.parse(`"${'https://' + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr'))}"`)))
 		transcriptJSON = await getJSON(decodeURIComponent(JSON.parse(`"${'https://' + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + 'lang=en-US&fmt=json3'}"`)));
 	} catch (error) {
 		//Auto-generated Transcript + Formats and finalizes the transcript URL
-		transcriptJSON = await getJSON( decodeURIComponent(JSON.parse( `"${ 'https://' + transcriptRegExp .exec(text)[1] .substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + 'lang=en&fmt=json3' }"`)));
+		transcriptJSON = await getJSON( decodeURIComponent(JSON.parse( `"${ 'https://' + transcriptRegExp .exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + 'lang=en&fmt=json3' }"`)));
 	}
 
 	var transcript = [];
@@ -92,27 +93,29 @@ async function GetVideoInformation() {
 	const potentialSponsors4 = newVideo.nounsRecog();
 	const potentialSponsors5 = await newVideo.companyRecog();
 
-	//newVideo.cleanSponsorFrequency();
+	newVideo.cleanSponsorFrequency();
 
 	const sponsorFilter1 = newVideo.firstBreadth();
 	const sponsorFilter2 = newVideo.proximityToLink();
 	const sponsorFilter3 = newVideo.proximityToRelevance();
 	const sponsorFilter4 = newVideo.transcriptProximityToRelevance();
 
-	for (const sponsor in newVideo.sponsors) {}
-		//if (newVideo.sponsors[sponsor] < 8) delete newVideo.sponsors[sponsor];
+	for (const sponsor in newVideo.sponsors)
+		if (newVideo.sponsors[sponsor] < 13) delete newVideo.sponsors[sponsor];
 
+		
+	console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsors);
 
 	//NOTE: REMOVE ALL FOR EACH LOOPS
-	//NOTE: IMPLEMENT SAME WORD CLUSTERS
-	for (const transcriptIndex in transcript) {
-		const element = transcript[transcriptIndex];
-		const wordsInSentence = element.sentence.split(/\s+/);
+	//NOTE: IMPLEMENT SAME WORD CLUSTER
 
+	for (const sponsor in newVideo.sponsors) {
+		for (const transcriptIndex in transcript) {
+			const element = transcript[transcriptIndex];
+			const wordsInSentence = element.sentence.split(/\s+/);
 		wordsInSentence.forEach((transcriptWord) => {
 			if (transcriptWord.length >= 4) {
-				for (const sponsor in newVideo.sponsors) {
 					if (similarity(sponsor, transcriptWord) > 0.7 || (transcriptWord.length >= sponsor.length * 0.4 && sponsor.includes(transcriptWord))) {
 						if (newVideo.sponsorClusters[sponsor] == null) {
 							newVideo.sponsorClusters[sponsor] = {
@@ -122,25 +125,26 @@ async function GetVideoInformation() {
 							};
 						}
 						newVideo.sponsorClusters[sponsor].count += 1;
-						if (element.time > newVideo.sponsorClusters[sponsor].startTime && element.time <= newVideo.sponsorClusters[sponsor].endTime + 60) {
-							try {
+						if (element.time > newVideo.sponsorClusters[sponsor].startTime) {
+							if (element.time <= newVideo.sponsorClusters[sponsor].endTime + 45) {
 								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
-							} catch (error) {
-								newVideo.sponsorClusters[sponsor].endTime = element.time;
+							}
+							if (element.time > newVideo.sponsorClusters[sponsor].endTime + 60) {
+								newVideo.sponsorClusters[sponsor].startTime = element.time;
+								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
 							}
 						}
-						continue; //Redundant?
 					}
 				}
+			});
 			}
-		});
-	}
+			if (newVideo.sponsorClusters[sponsor] != null && (newVideo.sponsorClusters[sponsor].count <= 3 || newVideo.sponsorClusters[sponsor].count >= 15)) delete newVideo.sponsorClusters[sponsor];
 
+	}
 	newVideo.cleanClusters();
 
 	newVideo.generateTimeStamps();
 
-	console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsorClusters);
 	console.log(
 		potentialSponsors1,

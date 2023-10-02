@@ -66,6 +66,7 @@ class PotentialSponsor {
 			'checkout',
 			'slash',
 			'brought',
+			'purchase'
 		];
 		this.ignore = new Set([
 			'code',
@@ -85,14 +86,15 @@ class PotentialSponsor {
 			'twitch',
 			'discord',
 			'your',
-			'tech'
+			'tech',
+			'store'
 		]);
 	}
 
 	//ACTIONS
 	cleanClusters() {
 		for (const sponsor in this.sponsorClusters) {
-			if (this.sponsorClusters[sponsor].startTime == this.sponsorClusters[sponsor].endTime)
+			if (this.sponsorClusters[sponsor].endTime - this.sponsorClusters[sponsor].startTime < 5)
 				delete this.sponsorClusters[sponsor];	
 		}
 	}
@@ -106,6 +108,7 @@ class PotentialSponsor {
 			);
 		}
 	}
+
 
 	incSponsorFrequency(set, weight, sponsorSet) {
 		set.forEach((element) => {
@@ -133,13 +136,11 @@ class PotentialSponsor {
 		context.forEach((context) => {
 			for (const sponsor in this.PotentialSponsors) {
 				//Remove context and low threshold elements
-				if (
-					sponsor.includes(context) ||
-					this.PotentialSponsors[sponsor] < 5 ||
+				if (sponsor.includes(context) ||
+					this.PotentialSponsors[sponsor] <= 5 ||
 					sponsor.length <= 3 ||
 					!isNaN(sponsor) ||
-					this.ignore.has(sponsor)
-				) {
+					this.ignore.has(sponsor)) {
 					delete this.PotentialSponsors[sponsor];
 				}
 			}
@@ -167,7 +168,7 @@ class PotentialSponsor {
 			}
 		});
 
-		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 7, this.PotentialSponsors);
 		return result;
 	}
 
@@ -188,7 +189,7 @@ class PotentialSponsor {
 
 		//ADDITION: If 2 or more words are within close proximity join them with a space instead of individuals
 
-		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 2, this.PotentialSponsors);
 		return result;
 	}
 
@@ -237,7 +238,7 @@ class PotentialSponsor {
 			});
 		});
 
-		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 8, this.PotentialSponsors);
 		return result;
 	}
 
@@ -259,7 +260,7 @@ class PotentialSponsor {
 				if (trimmedWord.length >= 3) result.add(trimmedWord);
 			});
 		});
-		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 3, this.PotentialSponsors);
 		return result;
 	}
 	//Guaranteed filter
@@ -289,7 +290,7 @@ class PotentialSponsor {
 			}
 		});
 
-		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 7, this.PotentialSponsors);
 		return result;
 	}
 
@@ -308,7 +309,7 @@ class PotentialSponsor {
 			if (shortDesc.includes(potentialSponsor)) result.add(potentialSponsor);
 		}
 
-		this.incSponsorFrequency(result, 1, this.sponsors);
+		this.incSponsorFrequency(result, 5, this.sponsors);
 		return result;
 	}
 
@@ -326,7 +327,7 @@ class PotentialSponsor {
 			}
 		});
 
-		this.incSponsorFrequency(result, 1, this.sponsors);
+		this.incSponsorFrequency(result, 5, this.sponsors);
 		return result;
 	}
 
@@ -346,7 +347,7 @@ class PotentialSponsor {
 			});
 		});
 
-		this.incSponsorFrequency(result, 1, this.sponsors);
+		this.incSponsorFrequency(result, 3, this.sponsors);
 		return result;
 	}
 
@@ -376,7 +377,7 @@ class PotentialSponsor {
 			});
 		});
 
-		this.incSponsorFrequency(result, 1, this.sponsors);
+		this.incSponsorFrequency(result, 5, this.sponsors);
 		return result;
 	}
 	//User can input a chat gpt api key and I will handle the prompts
