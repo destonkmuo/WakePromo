@@ -18,6 +18,7 @@ var getRequest = async (url) => {
 	return response;
 };
 
+//Make a 'compile' fnc that loops through this.sponsor and passes through the individual fncs
 class PotentialSponsor {
 	constructor({
 		description,
@@ -83,18 +84,16 @@ class PotentialSponsor {
 			'twitter',
 			'twitch',
 			'discord',
+			'your',
+			'tech'
 		]);
 	}
 
 	//ACTIONS
 	cleanClusters() {
 		for (const sponsor in this.sponsorClusters) {
-			if (
-				this.sponsorClusters[sponsor].startTime ==
-				this.sponsorClusters[sponsor].endTime
-			) {
-				delete this.sponsorClusters[sponsor];
-			}
+			if (this.sponsorClusters[sponsor].startTime == this.sponsorClusters[sponsor].endTime)
+				delete this.sponsorClusters[sponsor];	
 		}
 	}
 
@@ -137,7 +136,7 @@ class PotentialSponsor {
 				if (
 					sponsor.includes(context) ||
 					this.PotentialSponsors[sponsor] < 5 ||
-					sponsor.length < 3 ||
+					sponsor.length <= 3 ||
 					!isNaN(sponsor) ||
 					this.ignore.has(sponsor)
 				) {
@@ -163,12 +162,12 @@ class PotentialSponsor {
 				word.match(descRegExp) != null ?
 				word.match(descRegExp)[0].toLowerCase() :
 				'';
-			if (trimmedWord.length >= 4 && !isWordValid(trimmedWord)) {
+			if (trimmedWord.length >= 3 && !isWordValid(trimmedWord)) {
 				result.add(trimmedWord);
 			}
 		});
 
-		this.incSponsorFrequency(result, 4, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
 		return result;
 	}
 
@@ -182,14 +181,14 @@ class PotentialSponsor {
 				word.match(descRegExp) != null ?
 				word.match(descRegExp)[0].toLowerCase() :
 				'';
-			if (trimmedWord.length >= 4) {
+			if (trimmedWord.length >= 3) {
 				result.add(trimmedWord);
 			}
 		});
 
 		//ADDITION: If 2 or more words are within close proximity join them with a space instead of individuals
 
-		this.incSponsorFrequency(result, 2, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
 		return result;
 	}
 
@@ -226,26 +225,24 @@ class PotentialSponsor {
 			var nonDomain = removeNonDomainName(url);
 			removeNonDomainName(url) != null ?
 				nonDomain.forEach((domainPart) => {
-					if (domainPart.length > 3) result.add(domainPart.toLowerCase());
+					if (domainPart.length >= 3) result.add(domainPart.toLowerCase());
 				}) :
 				'';
 			const removeNonPathRegex = removeNonPath(url).match(/\d+|([a-zA-Z])\w+/);
 			const nonPath = removeNonPathRegex != null ? removeNonPathRegex : [];
 
 			nonPath.forEach((pathElement) => {
-				if (pathElement != undefined && pathElement.length > 3)
+				if (pathElement != undefined && pathElement.length >= 3)
 					result.add(pathElement.toLowerCase());
 			});
 		});
 
-		this.incSponsorFrequency(result, 5, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
 		return result;
 	}
 
 	nounsRecog() {
 		var result = new Set();
-
-		//Get length and retrieve the first 1/4;
 		const nlpSentences = nlp(this.description)
 			.match('#ProperNoun')
 			.out('array');
@@ -259,24 +256,24 @@ class PotentialSponsor {
 					word.match(descRegExp) != null ?
 					word.match(descRegExp)[0].toLowerCase() :
 					'';
-				if (trimmedWord.length >= 4) result.add(trimmedWord);
+				if (trimmedWord.length >= 3) result.add(trimmedWord);
 			});
 		});
-		this.incSponsorFrequency(result, 3, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
 		return result;
 	}
 	//Guaranteed filter
 	async companyRecog() {
 		var result = new Set();
 		const description = this.descriptionWords;
-		const response = await (
+		const companies = await (
 			await getRequest(
 				'https://raw.githubusercontent.com/destonkmuo/Wake-Promo-Extension/main/static/companies.json',
 			)
 		).json();
 
 		description.forEach((word) => {
-			for (const company in response.companies) {
+			for (const company in companies) {
 				const descRegExp = new RegExp(/\b[\w\d]+\b/g);
 				const trimmedWord =
 					word.match(descRegExp) != null ?
@@ -284,7 +281,7 @@ class PotentialSponsor {
 					'';
 				if (
 					trimmedWord.length >= 3 &&
-					similarity(response.companies[company].toLowerCase(), trimmedWord) >
+					similarity(companies[company].toLowerCase(), trimmedWord) >
 					0.85
 				) {
 					result.add(trimmedWord);
@@ -292,7 +289,7 @@ class PotentialSponsor {
 			}
 		});
 
-		this.incSponsorFrequency(result, 5, this.PotentialSponsors);
+		this.incSponsorFrequency(result, 1, this.PotentialSponsors);
 		return result;
 	}
 
@@ -311,7 +308,7 @@ class PotentialSponsor {
 			if (shortDesc.includes(potentialSponsor)) result.add(potentialSponsor);
 		}
 
-		this.incSponsorFrequency(result, 4, this.sponsors);
+		this.incSponsorFrequency(result, 1, this.sponsors);
 		return result;
 	}
 
@@ -322,7 +319,7 @@ class PotentialSponsor {
 		this.descriptionSentences.forEach((sentence) => {
 			if (sentence.includes('http')) {
 				for (const potentialSponsor in this.PotentialSponsors) {
-					if (sentence.includes(potentialSponsor)) {
+					if (sentence.toLowerCase().includes(potentialSponsor)) {
 						result.add(potentialSponsor);
 					}
 				}
@@ -349,7 +346,7 @@ class PotentialSponsor {
 			});
 		});
 
-		this.incSponsorFrequency(result, 3, this.sponsors);
+		this.incSponsorFrequency(result, 1, this.sponsors);
 		return result;
 	}
 
@@ -364,7 +361,7 @@ class PotentialSponsor {
 			this.keyTerms.forEach((term) => {
 				if (sentence.includes(term)) {
 					words.forEach((word) => {
-						if (word.length > 3) {
+						if (word.length >= 3) {
 							for (const potentialSponsor in this.PotentialSponsors) {
 								if (
 									similarity(word, potentialSponsor) > 0.7 ||
@@ -379,7 +376,39 @@ class PotentialSponsor {
 			});
 		});
 
-		this.incSponsorFrequency(result, 3, this.sponsors);
+		this.incSponsorFrequency(result, 1, this.sponsors);
 		return result;
+	}
+	//User can input a chat gpt api key and I will handle the prompts
+	async gptAnalysis() {
+		const gpt_prompt = ``;
+		try {
+			const response = await fetch('https://api.openai.com/v1/chat/completions', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${gtk}`,
+				},
+				body: JSON.stringify({
+					model: 'gpt-3.5-turbo',
+					messages: [{ role: 'user', content: gpt_prompt }],
+					temperature: 1.0,
+					top_p: 0.7,
+					n: 1,
+					stream: false,
+					presence_penalty: 0,
+					frequency_penalty: 0,
+				}),
+			});
+
+			if (response.ok) {
+				const data = await response.json();
+				return JSON.parse(data.choices[0].message.content);
+			} else {
+				throw new Error('Unable to process your request.');
+			}
+		} catch (error) {
+			console.error(error);
+		}
 	}
 }

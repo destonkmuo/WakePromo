@@ -1,7 +1,7 @@
 {
    "manifest_version":3,
    "name":"WakePromo AI",
-   "version":"0.0.0",
+   "version":"1.0.0",
    "description":"A Chrome extension that suggests timestamps to skip to based on YouTube captions.",
    "content_scripts":[
       {
@@ -13,7 +13,7 @@
             "javascript/compromise-lib.js",
             "javascript/time-skip.js",
             "javascript/word-similarity.js",
-            "potential-sponsor.js",
+            "javascript/potential-sponsor.js",
             "javascript/conv-iso8601.js",
             "javascript/promo-block.js",
             "javascript/advertisement-block.js"
@@ -25,7 +25,6 @@
    },
    "permissions":[
       "activeTab",
-      "contextMenus",
       "storage",
       "tabs"
    ]

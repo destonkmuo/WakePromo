@@ -5,9 +5,7 @@ async function GetVideoInformation() {
 	var searchQuery = this.location.search;
 
 	//Accesses the search query and returns the video ID after "?v="
-	var endOfQuery =
-		(searchQuery.indexOf('&') > 0 && searchQuery.indexOf('&')) ||
-		searchQuery.length;
+	var endOfQuery = (searchQuery.indexOf('&') > 0 && searchQuery.indexOf('&')) || searchQuery.length;
 	var videoID = decodeURIComponent(
 		this.location.search.substring(searchQuery.indexOf('?v=') + 3, endOfQuery),
 	);
@@ -44,53 +42,19 @@ async function GetVideoInformation() {
 	var transcriptJSON;
 	try {
 		//Creator's Transcript + Formats and finalizes the transcript URL
-		transcriptJSON = await getJSON(
-			decodeURIComponent(
-				JSON.parse(
-					`"${
-						'https://' +
-						transcriptRegExp
-							.exec(text)[1]
-							.substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) +
-						'lang=en-US&fmt=json3'
-					}"`,
-				),
-			),
-		);
+		transcriptJSON = await getJSON(decodeURIComponent(JSON.parse(`"${'https://' + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + 'lang=en-US&fmt=json3'}"`)));
 	} catch (error) {
 		//Auto-generated Transcript + Formats and finalizes the transcript URL
-		transcriptJSON = await getJSON(
-			decodeURIComponent(
-				JSON.parse(
-					`"${
-						'https://' +
-						transcriptRegExp
-							.exec(text)[1]
-							.substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) +
-						'lang=en&fmt=json3'
-					}"`,
-				),
-			),
-		);
-	}
-	if (transcriptJSON == null) {
-		return {
-			type: 'videoInfo',
-			data: null,
-			name: null,
-		};
+		transcriptJSON = await getJSON( decodeURIComponent(JSON.parse( `"${ 'https://' + transcriptRegExp .exec(text)[1] .substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + 'lang=en&fmt=json3' }"`)));
 	}
 
 	var transcript = [];
 	var events = transcriptJSON.events;
 
 	for (speechSegment in events) {
-		var sentence =
-			(events[speechSegment].segs != null && events[speechSegment].segs) || null;
+		var sentence = (events[speechSegment].segs != null && events[speechSegment].segs) || null;
 		//Filters out sentences that return as null or new line text
-		if (sentence == null || sentence[0].utf8 == '\n') {
-			continue;
-		}
+		if (sentence == null || sentence[0].utf8 == '\n') continue;
 		//Pushes the sentence and time stamp to the transcript array
 		transcript.push({
 			time: events[speechSegment].tStartMs / 1000,
@@ -105,9 +69,8 @@ async function GetVideoInformation() {
 	console.log(transcript);
 
 	//Fetches the videos description using youtubes API
-	const videoJSON = await getJSON(
-		`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=${apiKey}`,
-	);
+	const videoJSON = await getJSON(`https://youtube.googleapis.com/youtube/v3/videos?part=snippet&part=contentDetails&id=${videoID}&key=${gck}`);
+
 	const items = videoJSON.items[0];
 	const snippet = items.snippet;
 
@@ -118,7 +81,7 @@ async function GetVideoInformation() {
 		tags: snippet.tags,
 		category: snippet.categoryId,
 		duration: convertISO8601DurationToSeconds(items.contentDetails.duration) - 1,
-		transcript: transcript
+		transcript: transcript,
 	};
 
 	var newVideo = new PotentialSponsor(videoInfo);
@@ -129,51 +92,44 @@ async function GetVideoInformation() {
 	const potentialSponsors4 = newVideo.nounsRecog();
 	const potentialSponsors5 = await newVideo.companyRecog();
 
-	newVideo.cleanSponsorFrequency();
+	//newVideo.cleanSponsorFrequency();
 
 	const sponsorFilter1 = newVideo.firstBreadth();
 	const sponsorFilter2 = newVideo.proximityToLink();
 	const sponsorFilter3 = newVideo.proximityToRelevance();
 	const sponsorFilter4 = newVideo.transcriptProximityToRelevance();
 
-	for (const sponsor in newVideo.sponsors)
-		if (newVideo.sponsors[sponsor] < 8) delete newVideo.sponsors[sponsor];
-	
+	for (const sponsor in newVideo.sponsors) {}
+		//if (newVideo.sponsors[sponsor] < 8) delete newVideo.sponsors[sponsor];
 
 	console.log(newVideo.sponsors);
 
-
-	//NOTE: IMPLEMENT OLD WORDS NEW CLUSTER
+	//NOTE: REMOVE ALL FOR EACH LOOPS
+	//NOTE: IMPLEMENT SAME WORD CLUSTERS
 	for (const transcriptIndex in transcript) {
 		const element = transcript[transcriptIndex];
 		const wordsInSentence = element.sentence.split(/\s+/);
 
 		wordsInSentence.forEach((transcriptWord) => {
 			if (transcriptWord.length >= 4) {
-				if (transcriptWord == "dbrand") {
-					console.log(element.time);
-				}
 				for (const sponsor in newVideo.sponsors) {
 					if (similarity(sponsor, transcriptWord) > 0.7 || (transcriptWord.length >= sponsor.length * 0.4 && sponsor.includes(transcriptWord))) {
 						if (newVideo.sponsorClusters[sponsor] == null) {
 							newVideo.sponsorClusters[sponsor] = {
 								startTime: element.time,
-								endTime: element.time, 
+								endTime: element.time,
 								count: 0,
-							}
+							};
 						}
 						newVideo.sponsorClusters[sponsor].count += 1;
-						if (
-							element.time > newVideo.sponsorClusters[sponsor].startTime &&
-							element.time <= newVideo.sponsorClusters[sponsor].endTime + 60
-						) {
+						if (element.time > newVideo.sponsorClusters[sponsor].startTime && element.time <= newVideo.sponsorClusters[sponsor].endTime + 60) {
 							try {
 								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
-							} catch(error) {
+							} catch (error) {
 								newVideo.sponsorClusters[sponsor].endTime = element.time;
 							}
 						}
-						continue;
+						continue; //Redundant?
 					}
 				}
 			}
@@ -186,7 +142,13 @@ async function GetVideoInformation() {
 
 	console.log(newVideo.PotentialSponsors);
 	console.log(newVideo.sponsorClusters);
-	console.log(potentialSponsors1, potentialSponsors2, potentialSponsors3, potentialSponsors4, potentialSponsors5);
+	console.log(
+		potentialSponsors1,
+		potentialSponsors2,
+		potentialSponsors3,
+		potentialSponsors4,
+		potentialSponsors5,
+	);
 	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4);
 
 	let timeTaken = Date.now() - start;
@@ -197,20 +159,12 @@ async function GetVideoInformation() {
 			chrome.storage.sync.get(['skipPromotions'], function (result) {
 				var video = document.getElementsByClassName('video-stream html5-main-video')[0];
 				for (const sponsor in newVideo.sponsorClusters) {
-					const startTime = newVideo.sponsorClusters[sponsor].startTime;
-					const endTime = newVideo.sponsorClusters[sponsor].endTime;
-
-					if (
-						video.currentTime >= startTime - 2 &&
-						video.currentTime < endTime + 2 &&
-						result['skipPromotions'] == 'true'
-					) {
+					var startTime = newVideo.sponsorClusters[sponsor].startTime;
+					var endTime = newVideo.sponsorClusters[sponsor].endTime;
+					//Once in range, if the user has a chat gpt key, prompt 5 seconds before charge and 10 seconds before predicted ad time 
+					if ( video.currentTime >= startTime - 2 && video.currentTime < endTime + 2 && result['skipPromotions'] == 'true' ) {
 						videoSkipTo(endTime + 2);
-					} else if (
-						video.currentTime >= startTime - 4 &&
-						video.currentTime < endTime + 4 &&
-						result['skipPromotions'] == 'false'
-					) {
+					} else if ( video.currentTime >= startTime - 4 && video.currentTime < endTime + 4 && result['skipPromotions'] == 'false' ) {
 						timeSkipSuggestion(endTime + 7);
 					}
 				}
@@ -222,13 +176,18 @@ async function GetVideoInformation() {
 		clearInterval(checkForTimeSkip);
 	});
 
-	firstVideo = false;
-
+	if (Object.keys(newVideo.sponsorClusters).length >= 1)
+		return {
+			type: 'videoInfo',
+			data: newVideo.sponsorClusters,
+			name: videoInfo.title,
+			responseData: 'video-id: ' + videoID + '\ntranscript-url:' + decodeURIComponent( JSON.parse( `"${ 'https://' + transcriptRegExp .exec(text)[1] .substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + 'lang=en&fmt=json3' }"`)) + '\npotential-sponsors:' + Object.keys(newVideo.sponsors).join(', ')
+		};
+		
 	return {
 		type: 'videoInfo',
-		data: newVideo.sponsorClusters,
-		name: videoInfo.title,
-		responseData: "video-id: " + videoID + "\ntranscript-url:" + decodeURIComponent(JSON.parse( `"${ 'https://' + transcriptRegExp .exec(text)[1] .substring(0, transcriptRegExp.exec(text)[1].indexOf('lang')) + 'lang=en&fmt=json3' }"`))+ "\npotential-sponsors:" + Object.keys(newVideo.sponsors).join(', ')
+		data: null,
+		name: null,
 	};
 }
 
