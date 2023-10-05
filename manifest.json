@@ -9,12 +9,12 @@
             "https://www.YouTube.com/*"
          ],
          "js":[
+            "javascript/lib.js",
             "javascript/config.js",
             "javascript/compromise-lib.js",
             "javascript/time-skip.js",
             "javascript/word-similarity.js",
             "javascript/potential-sponsor.js",
-            "javascript/conv-iso8601.js",
             "javascript/promo-block.js",
             "javascript/advertisement-block.js"
          ]

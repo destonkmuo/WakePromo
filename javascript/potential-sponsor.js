@@ -66,7 +66,8 @@ class PotentialSponsor {
 			'checkout',
 			'slash',
 			'brought',
-			'purchase'
+			'purchase',
+			'link'
 		];
 		this.ignore = new Set([
 			'code',
@@ -87,7 +88,8 @@ class PotentialSponsor {
 			'discord',
 			'your',
 			'tech',
-			'store'
+			'store',
+			'link'
 		]);
 	}
 
@@ -137,7 +139,7 @@ class PotentialSponsor {
 			for (const sponsor in this.PotentialSponsors) {
 				//Remove context and low threshold elements
 				if (sponsor.includes(context) ||
-					this.PotentialSponsors[sponsor] <= 5 ||
+					this.PotentialSponsors[sponsor] <= 9 ||
 					sponsor.length <= 3 ||
 					!isNaN(sponsor) ||
 					this.ignore.has(sponsor)) {
@@ -151,7 +153,8 @@ class PotentialSponsor {
 	async spellCheck() {
 		const description = this.descriptionWords;
 		const dictionary = await loadDictionary();
-		var result = new Set();
+		var result1 = new Set();
+		var result2 = new Set();
 
 		function isWordValid(word) {
 			return dictionary.includes(word.toLowerCase());
@@ -164,12 +167,15 @@ class PotentialSponsor {
 				word.match(descRegExp)[0].toLowerCase() :
 				'';
 			if (trimmedWord.length >= 3 && !isWordValid(trimmedWord)) {
-				result.add(trimmedWord);
+				result1.add(trimmedWord);
+			} else {
+				result2.add(trimmedWord);
 			}
 		});
 
-		this.incSponsorFrequency(result, 7, this.PotentialSponsors);
-		return result;
+		this.incSponsorFrequency(result1, 6, this.PotentialSponsors);
+		this.incSponsorFrequency(result2, -2, this.PotentialSponsors);
+		return result1;
 	}
 
 	capitalCheck() {
@@ -245,8 +251,10 @@ class PotentialSponsor {
 	nounsRecog() {
 		var result = new Set();
 		const nlpSentences = nlp(this.description)
-			.match('#ProperNoun')
+			.match('#ProperNoun !People')
 			.out('array');
+		
+		const names = nlp(this.description).people();
 
 		nlpSentences.forEach((sentence) => {
 			const words = sentence.split(/\s+/);
@@ -260,13 +268,15 @@ class PotentialSponsor {
 				if (trimmedWord.length >= 3) result.add(trimmedWord);
 			});
 		});
-		this.incSponsorFrequency(result, 3, this.PotentialSponsors);
+		
+		this.incSponsorFrequency(result, 5, this.PotentialSponsors);
 		return result;
 	}
 	//Guaranteed filter
 	async companyRecog() {
 		var result = new Set();
 		const description = this.descriptionWords;
+
 		const companies = await (
 			await getRequest(
 				'https://raw.githubusercontent.com/destonkmuo/Wake-Promo-Extension/main/static/companies.json',
@@ -289,8 +299,26 @@ class PotentialSponsor {
 				}
 			}
 		});
-
 		this.incSponsorFrequency(result, 7, this.PotentialSponsors);
+		return result;
+	}
+
+	//Proximity to Key Words
+	proximityToRelevance() {
+		var result = new Set();
+
+		this.descriptionSentences.forEach((sentence) => {
+			sentence = sentence.toLowerCase();
+			this.keyTerms.forEach((term) => {
+				if (sentence.includes(term)) {
+					for (const potentialSponsor in this.PotentialSponsors) {
+						if (sentence.includes(potentialSponsor) && potentialSponsor.length >= 3) result.add(potentialSponsor);
+					}
+				}
+			});
+		});
+
+		this.incSponsorFrequency(result, 5, this.PotentialSponsors);
 		return result;
 	}
 
@@ -309,7 +337,7 @@ class PotentialSponsor {
 			if (shortDesc.includes(potentialSponsor)) result.add(potentialSponsor);
 		}
 
-		this.incSponsorFrequency(result, 5, this.sponsors);
+		this.incSponsorFrequency(result, 4, this.sponsors);
 		return result;
 	}
 
@@ -325,26 +353,6 @@ class PotentialSponsor {
 					}
 				}
 			}
-		});
-
-		this.incSponsorFrequency(result, 5, this.sponsors);
-		return result;
-	}
-
-	//Proximity to Key Words
-	proximityToRelevance() {
-		var result = new Set();
-
-		this.descriptionSentences.forEach((sentence) => {
-			sentence = sentence.toLowerCase();
-			this.keyTerms.forEach((term) => {
-				if (sentence.includes(term)) {
-					for (const potentialSponsor in this.PotentialSponsors) {
-						if (sentence.includes(potentialSponsor))
-							result.add(potentialSponsor);
-					}
-				}
-			});
 		});
 
 		this.incSponsorFrequency(result, 3, this.sponsors);
@@ -377,7 +385,7 @@ class PotentialSponsor {
 			});
 		});
 
-		this.incSponsorFrequency(result, 5, this.sponsors);
+		this.incSponsorFrequency(result, 3, this.sponsors);
 		return result;
 	}
 	//User can input a chat gpt api key and I will handle the prompts

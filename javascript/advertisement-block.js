@@ -5,7 +5,7 @@ function blockAdsOnNewVideo() {
         if (skipButton != undefined && skipButton.length > 0) {
           skipButton[0].click();
         }
-      }, 100);
+      }, 1);
   }
   
   chrome.storage.sync.get(['skipAdvertisements'], function(result) {

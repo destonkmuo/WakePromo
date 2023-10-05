@@ -5,3 +5,17 @@ function convertISO8601DurationToSeconds(duration) {
 
   return hourToSecondsRegex + minutesToSecondsRegex + secondsRegex
 }
+
+var getInnerHTML = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(response.statusText);
+  const data = await response.text();
+  return data;
+};
+
+var getJSON = async (url) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(response.statusText);
+  const data = await response.json();
+  return data;
+};

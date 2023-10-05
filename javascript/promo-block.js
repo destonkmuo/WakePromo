@@ -15,21 +15,7 @@ async function GetVideoInformation() {
 		/playerCaptionsTracklistRenderer.*?(youtube.com\/api\/timedtext.*?)"/,
 	);
 
-	var getInnerHTML = async (_) => {
-		const response = await fetch(searchQuery);
-		if (!response.ok) throw new Error(response.statusText);
-		const data = await response.text();
-		return data;
-	};
-
-	var getJSON = async (url) => {
-		const response = await fetch(url);
-		if (!response.ok) throw new Error(response.statusText);
-		const data = await response.json();
-		return data;
-	};
-
-	const text = await getInnerHTML();
+	const text = await getInnerHTML(searchQuery);
 	//Guard condition
 	if (transcriptRegExp.exec(text) == null || videoID == null || videoID == '') {
 		return {
@@ -42,7 +28,6 @@ async function GetVideoInformation() {
 	var transcriptJSON;
 	try {
 		//Creator's Transcript + Formats and finalizes the transcript URL
-		console.log(decodeURIComponent(JSON.parse(`"${'https://' + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr'))}"`)))
 		transcriptJSON = await getJSON(decodeURIComponent(JSON.parse(`"${'https://' + transcriptRegExp.exec(text)[1].substring(0, transcriptRegExp.exec(text)[1].indexOf('kind=asr')) + 'lang=en-US&fmt=json3'}"`)));
 	} catch (error) {
 		//Auto-generated Transcript + Formats and finalizes the transcript URL
@@ -92,16 +77,16 @@ async function GetVideoInformation() {
 	const potentialSponsors3 = newVideo.extractedLinksCheck();
 	const potentialSponsors4 = newVideo.nounsRecog();
 	const potentialSponsors5 = await newVideo.companyRecog();
+	const potentialSponsors6 = newVideo.proximityToRelevance();
 
 	newVideo.cleanSponsorFrequency();
 
 	const sponsorFilter1 = newVideo.firstBreadth();
 	const sponsorFilter2 = newVideo.proximityToLink();
-	const sponsorFilter3 = newVideo.proximityToRelevance();
-	const sponsorFilter4 = newVideo.transcriptProximityToRelevance();
+	const sponsorFilter3 = newVideo.transcriptProximityToRelevance();
 
 	for (const sponsor in newVideo.sponsors)
-		if (newVideo.sponsors[sponsor] < 13) delete newVideo.sponsors[sponsor];
+		if (newVideo.sponsors[sponsor] < 9) delete newVideo.sponsors[sponsor];
 
 		
 	console.log(newVideo.PotentialSponsors);
@@ -116,7 +101,7 @@ async function GetVideoInformation() {
 			const wordsInSentence = element.sentence.split(/\s+/);
 		wordsInSentence.forEach((transcriptWord) => {
 			if (transcriptWord.length >= 4) {
-					if (similarity(sponsor, transcriptWord) > 0.7 || (transcriptWord.length >= sponsor.length * 0.4 && sponsor.includes(transcriptWord))) {
+					if (similarity(sponsor, transcriptWord) > 0.75 || (transcriptWord.length >= sponsor.length * 0.7 && sponsor.includes(transcriptWord))) {
 						if (newVideo.sponsorClusters[sponsor] == null) {
 							newVideo.sponsorClusters[sponsor] = {
 								startTime: element.time,
@@ -125,22 +110,20 @@ async function GetVideoInformation() {
 							};
 						}
 						newVideo.sponsorClusters[sponsor].count += 1;
-						if (element.time > newVideo.sponsorClusters[sponsor].startTime) {
-							if (element.time <= newVideo.sponsorClusters[sponsor].endTime + 45) {
-								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
-							}
-							if (element.time > newVideo.sponsorClusters[sponsor].endTime + 60) {
-								newVideo.sponsorClusters[sponsor].startTime = element.time;
-								newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
-							}
-						}
+						if (element.time > newVideo.sponsorClusters[sponsor].startTime && element.time <= newVideo.sponsorClusters[sponsor].endTime + 45) {
+							newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
+						} else {
+							newVideo.sponsorClusters[sponsor].startTime = element.time;
+							newVideo.sponsorClusters[sponsor].endTime = transcript[Number(transcriptIndex) + 1].time + 1;
+						}	
 					}
 				}
 			});
-			}
-			if (newVideo.sponsorClusters[sponsor] != null && (newVideo.sponsorClusters[sponsor].count <= 3 || newVideo.sponsorClusters[sponsor].count >= 15)) delete newVideo.sponsorClusters[sponsor];
-
+		}
+		if (newVideo.sponsorClusters[sponsor] != null && (newVideo.sponsorClusters[sponsor].count < 2 || newVideo.sponsorClusters[sponsor].count >= 15)) delete newVideo.sponsorClusters[sponsor];
 	}
+	//Maybe check for extension of ad by key words(buy, percent, etc)), rather than arbitrary ints
+	//Maybe points of interest must have keyterms around them in order to be chosen
 	newVideo.cleanClusters();
 
 	newVideo.generateTimeStamps();
@@ -152,8 +135,9 @@ async function GetVideoInformation() {
 		potentialSponsors3,
 		potentialSponsors4,
 		potentialSponsors5,
+		potentialSponsors6
 	);
-	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3, sponsorFilter4);
+	console.log(sponsorFilter1, sponsorFilter2, sponsorFilter3);
 
 	let timeTaken = Date.now() - start;
 	console.log('Total time taken : ' + timeTaken / 1000 + 'seconds');
