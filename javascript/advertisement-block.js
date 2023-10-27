@@ -4,16 +4,16 @@ function blockAdsOnNewVideo() {
       var skipButton = document.getElementsByClassName("ytp-ad-skip-button");
       var video = document.getElementsByClassName("video-stream html5-main-video");
       var adShowing = document.getElementsByClassName("ad-showing");
-      try {
-        if (adShowing[0] != undefined) {
-          video[0].currentTime = video[0].duration;
-          skipButton[0].click();
-        }
-        } catch(error) {}
+      //var surveyShowing = document.getElementsByClassName("ad-");
+      if (adShowing[0] != undefined) {
+        video[0].currentTime = video[0].duration;
+        skipButton[0].click();
+        console.log("Skipped ad");
+      }
     });
 }
 
 chrome.storage.sync.get(['skipAdvertisements'], function(result) {
   if (result['skipAdvertisements'] === "true") 
-      window.addEventListener("yt-navigate-finish", blockAdsOnNewVideo);
+      window.addEventListener("yt-navigate", blockAdsOnNewVideo);
 });
