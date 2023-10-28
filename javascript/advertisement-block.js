@@ -5,10 +5,15 @@ function blockAdsOnNewVideo() {
       var video = document.getElementsByClassName("video-stream html5-main-video");
       var adShowing = document.getElementsByClassName("ad-showing");
       var surveyShowing = document.getElementsByClassName("ytp-ad-survey");
-      if (adShowing[0] != undefined || surveyShowing != undefined) {
+      if (adShowing[0] != undefined) {
         video[0].currentTime = video[0].duration;
         skipButton[0].click();
         console.log("Skipped ad");
+      }
+      else if (surveyShowing != undefined)
+      {
+        skipButton[0].click(); 
+        console.log("Skipped survey"); 
       }
     });
 }
