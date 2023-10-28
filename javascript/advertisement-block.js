@@ -4,8 +4,8 @@ function blockAdsOnNewVideo() {
       var skipButton = document.getElementsByClassName("ytp-ad-skip-button");
       var video = document.getElementsByClassName("video-stream html5-main-video");
       var adShowing = document.getElementsByClassName("ad-showing");
-      //var surveyShowing = document.getElementsByClassName("ad-");
-      if (adShowing[0] != undefined) {
+      var surveyShowing = document.getElementsByClassName("ytp-ad-survey");
+      if (adShowing[0] != undefined || surveyShowing != undefined) {
         video[0].currentTime = video[0].duration;
         skipButton[0].click();
         console.log("Skipped ad");
