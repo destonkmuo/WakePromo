@@ -5,20 +5,30 @@ function blockAdsOnNewVideo() {
       var video = document.getElementsByClassName("video-stream html5-main-video");
       var adShowing = document.getElementsByClassName("ad-showing");
       var surveyShowing = document.getElementsByClassName("ytp-ad-survey");
-      if (adShowing[0] != undefined) {
-        video[0].currentTime = video[0].duration;
-        skipButton[0].click();
-        console.log("Skipped ad");
-      }
-      else if (surveyShowing != undefined)
-      {
-        skipButton[0].click(); 
-        console.log("Skipped survey"); 
-      }
+
+      try {
+        if (adShowing[0] != undefined) {
+          video[0].currentTime = video[0].duration;
+          console.log("Skipped ad");
+        }
+        else if (surveyShowing[0] != undefined)
+        {
+          console.log("Skipped survey");
+        }
+        if (skipButton[0] != undefined)
+        {
+          skipButton[0].click();
+          console.log("Skipping the button");
+        }
+      } catch(error) {}
     });
 }
 
+blockAdsOnNewVideo();
+
 chrome.storage.sync.get(['skipAdvertisements'], function(result) {
-  if (result['skipAdvertisements'] === "true") 
-      window.addEventListener("yt-navigate", blockAdsOnNewVideo);
+  if (result['skipAdvertisements'] === "true")
+  {
+    window.addEventListener("yt-navigate-start", blockAdsOnNewVideo);
+  } 
 });

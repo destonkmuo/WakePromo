@@ -14,10 +14,6 @@ function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
 				return;
 			}
 
-			var progressBar = document.getElementsByClassName(
-				'ytp-timed-markers-container',
-			)[0];
-
 			var div = document.createElement('div');
 
 			div.style.width =
@@ -27,17 +23,10 @@ function createTimeStamp(promotionStartTime, promotionEndTime, videoDuration) {
 			div.style.borderRadius = '1px';
 			div.style.marginLeft = (100 * promotionStartTime) / videoDuration + '%'; // Proportion of start pos
 			div.style.transition = 'all 200ms ease-in-out';
-			div.style.opacity = '50%';
+			div.style.opacity = '100%';
 			div.style.position = 'absolute';
 
-			progressBar.addEventListener('mouseenter', function () {
-				div.style.opacity = '90%';
-			});
-			progressBar.addEventListener('mouseleave', function () {
-				div.style.opacity = '50%';
-			});
-
-			progressBar.appendChild(div);
+			document.getElementById("previewbar").appendChild(div);
 			createdElements.push(div);
 		});
 	} catch (error) {}
