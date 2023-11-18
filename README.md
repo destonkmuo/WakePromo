@@ -19,6 +19,7 @@
     ```bash
    git clone https://github.com/destonkmuo/Wake-Promo-Extension.git
    ```
+   Or press this link to download the zip file https://github.com/destonkmuo/WakePromoExtension/archive/refs/heads/main.zip
 
 Open Google Chrome and navigate to chrome://extensions.
 
