@@ -21,13 +21,13 @@
    ```
    Or press this link to download the zip file https://github.com/destonkmuo/WakePromoExtension/archive/refs/heads/main.zip
 
-Open Google Chrome and navigate to chrome://extensions.
+    Open Google Chrome and navigate to chrome://extensions.
 
-Enable the "Developer mode" in the top right corner.
+    Enable the "Developer mode" in the top right corner.
 
-Click on "Load unpacked" and select the cloned folder /WakePromo/ from your local machine.
+    Click on "Load unpacked" and select the cloned folder /WakePromo/ from your local machine.
 
-Voilà! The extension is now installed in your Chrome browser.
+    Voilà! The extension is now installed in your Chrome browser.
 
 ## How to Use
 Once the extension is installed, navigate to any YouTube video page, and WakePromo will automatically skip video advertisements & promotions before, during, and after the content of the video.
