@@ -11,7 +11,6 @@
          "js":[
             "javascript/advertisement-block.js",
             "javascript/lib.js",
-            "javascript/config.js",
             "javascript/compromise-lib.js",
             "javascript/time-skip.js",
             "javascript/word-similarity.js",
