@@ -23,7 +23,7 @@
 
     Open Google Chrome and navigate to chrome://extensions.
 
-    Enable the "Developer mode" in the top right corner.
+    Enable "Developer mode" in the top right corner.
 
     Click on "Load unpacked" and select the cloned folder /WakePromo/ from your local machine.
 
